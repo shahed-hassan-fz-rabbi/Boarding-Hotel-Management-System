@@ -8,6 +8,8 @@
 require '../db.php';
 require '../includes/auth_check.php';
 
+requireRoles(['Admin','Hostel Supervisor']);
+
 $error = '';
 $success = '';
 

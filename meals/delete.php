@@ -8,6 +8,7 @@
 
 require_once '../includes/auth_check.php';
 
+requireRoles(['Admin','Hostel Supervisor']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $meal_id = intval($_POST['meal_id'] ?? 0);

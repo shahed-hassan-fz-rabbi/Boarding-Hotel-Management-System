@@ -112,7 +112,7 @@ function hasRole($role) {
 
 /* ============================
    Helper Function: Require Roles
-   Usage: requireRoles(['Admin', 'Warden']);
+   Usage: requireRoles(['Admin', 'Hostel Supervisor']);
 ============================ */
 
 function requireRoles($roles = []) {

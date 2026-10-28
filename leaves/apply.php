@@ -8,31 +8,21 @@
 
 require_once '../includes/auth_check.php';
 
+requireRoles(['Admin', 'Teacher', 'Hostel Supervisor']);
+
 $error = '';
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $student_id = $_SESSION['user_role'] === 'Admin' ? intval($_POST['student_id'] ?? 0) : null;
+    /* Staff roles apply on behalf of the student selected in the UI */
+    $student_id = intval($_POST['student_id'] ?? 0);
     $leave_type_id = intval($_POST['leave_type_id'] ?? 0);
     $from_date = trim($_POST['from_date'] ?? '');
     $to_date = trim($_POST['to_date'] ?? '');
     $reason = trim($_POST['reason'] ?? '');
 
-    // If current user is a student, use their ID
-    if ($_SESSION['user_role'] !== 'Admin' && $_SESSION['user_role'] !== 'Warden') {
-        // For students, we need to get their student ID from database
-        $studentCheckSql = "SELECT id FROM students WHERE email = ? LIMIT 1";
-        $studentCheckStmt = $conn->prepare($studentCheckSql);
-        if ($studentCheckStmt) {
-            $studentCheckStmt->bind_param('s', $_SESSION['user_email']);
-            $studentCheckStmt->execute();
-            $studentCheckResult = $studentCheckStmt->get_result();
-            $studentCheck = $studentCheckResult->fetch_assoc();
-            $student_id = $studentCheck ? $studentCheck['id'] : 0;
-            $studentCheckStmt->close();
-        }
-    }
+    // Apply on behalf of the student selected in the UI (all allowed roles are staff)
 
     /* Validation */
     if ($student_id <= 0) {

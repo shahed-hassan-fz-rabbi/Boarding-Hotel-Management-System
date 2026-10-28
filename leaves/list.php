@@ -828,8 +828,8 @@ $leaveTypesJSON = json_encode($leaveTypes);
                 `;
             }
 
-            // Add action buttons for admin/warden and pending leaves
-            if ((userRole === 'Admin' || userRole === 'Warden') && leave.status === 'Pending') {
+            // Add action buttons for admin/hostel supervisor and pending leaves
+            if ((userRole === 'Admin' || userRole === 'Hostel Supervisor') && leave.status === 'Pending') {
                 reviewHTML += `
                     <div class="border-t pt-6">
                         <h3 class="font-600 text-slate-800 mb-4">Action</h3>

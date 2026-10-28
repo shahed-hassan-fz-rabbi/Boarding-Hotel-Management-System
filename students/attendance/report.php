@@ -138,7 +138,7 @@ $stmt->close();
         </div>
         <div class="flex gap-2 no-print">
             <button onclick="window.print()" class="px-4 py-2 bg-slate-800 text-white rounded-xl font-semibold hover:bg-slate-700 transition">🖨️ Print</button>
-            <?php if (in_array($user_role, ['Admin', 'Warden'])): ?>
+            <?php if (in_array($user_role, ['Admin', 'Teacher', 'Hostel Supervisor'])): ?>
                 <button onclick="exportCSV()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-500 transition">📥 Export CSV</button>
             <?php endif; ?>
         </div>
@@ -254,7 +254,7 @@ $stmt->close();
                                         </div>
                                     </td>
                                     <td class="no-print">
-                                        <?php if (in_array($user_role, ['Admin', 'Warden'])): ?>
+                                        <?php if (in_array($user_role, ['Admin', 'Teacher'])): ?>
                                             <a href="manage.php?date=<?= date('Y-m-d') ?>" class="text-xs font-semibold text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-2 py-1 rounded">Modify Log</a>
                                         <?php else: ?>
                                             <span class="text-xs text-slate-400 italic">View Only</span>

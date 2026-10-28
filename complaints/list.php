@@ -62,7 +62,7 @@ $resolvedComplaints = count(array_filter($complaints, fn($c) => $c['status'] ===
 $rejectedComplaints = count(array_filter($complaints, fn($c) => $c['status'] === 'Rejected'));
 
 /* Fetch all staff for assignment */
-$staffSql = "SELECT id, full_name FROM users WHERE role IN ('Warden', 'Staff') AND status = 1 ORDER BY full_name ASC";
+$staffSql = "SELECT id, full_name FROM users WHERE role IN ('Admin', 'Hostel Supervisor') AND status = 1 ORDER BY full_name ASC";
 $staffResult = $conn->query($staffSql);
 $staff = [];
 if ($staffResult && $staffResult->num_rows > 0) {
@@ -625,7 +625,7 @@ $studentsJSON = json_encode($students);
                 </div>
 
                 <!-- Status (for admin) -->
-                <?php if ($user_role === 'Admin' || $user_role === 'Warden'): ?>
+                <?php if ($user_role === 'Admin' || $user_role === 'Hostel Supervisor'): ?>
                 <div class="form-group">
                     <label class="form-label">Status</label>
                     <select name="status" class="input-field w-full">
@@ -892,8 +892,8 @@ $studentsJSON = json_encode($students);
                     </div>
             `;
 
-            // Add update form for admin/warden
-            if ('<?php echo $user_role; ?>' === 'Admin' || '<?php echo $user_role; ?>' === 'Warden') {
+            // Add update form for admin/hostel supervisor
+            if ('<?php echo $user_role; ?>' === 'Admin' || '<?php echo $user_role; ?>' === 'Hostel Supervisor') {
                 detailHTML += `
                     <form method="POST" action="update.php" class="border-t pt-6">
                         <?= csrf_field() ?>

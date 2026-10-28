@@ -8,6 +8,8 @@
 require '../db.php';
 require '../includes/auth_check.php';
 
+requireRoles(['Admin','Hostel Supervisor']);
+
 $error = '';
 $success = '';
 $complaint = null;
@@ -73,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // Get all staff members for assignment
-$staff_result = $conn->query("SELECT id, full_name FROM users WHERE role IN ('Admin', 'Warden') ORDER BY full_name ASC");
+$staff_result = $conn->query("SELECT id, full_name FROM users WHERE role IN ('Admin', 'Hostel Supervisor') ORDER BY full_name ASC");
 $staff_members = [];
 if ($staff_result) {
     while ($row = $staff_result->fetch_assoc()) {

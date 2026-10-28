@@ -8,8 +8,8 @@
 
 require_once '../includes/auth_check.php';
 
-// Only admin/warden can approve/reject
-if ($user_role !== 'Admin' && $user_role !== 'Warden') {
+// Only Admin/Hostel Supervisor can approve/reject
+if ($user_role !== 'Admin' && $user_role !== 'Hostel Supervisor') {
     header('Location: list.php?error=Permission denied');
     exit();
 }

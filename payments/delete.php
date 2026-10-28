@@ -8,6 +8,7 @@
 
 require_once '../includes/auth_check.php';
 
+requireRoles(['Admin','Accountant']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $payment_id = intval($_POST['payment_id'] ?? 0);

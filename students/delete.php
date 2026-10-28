@@ -8,6 +8,7 @@
 
 require_once '../includes/auth_check.php';
 
+requireRoles(['Admin','Teacher','Hostel Supervisor']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $student_id = intval($_POST['student_id'] ?? 0);

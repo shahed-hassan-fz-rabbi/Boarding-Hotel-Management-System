@@ -8,6 +8,7 @@
 
 require_once '../includes/auth_check.php';
 
+requireRoles(['Admin','Hostel Supervisor']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $allocation_id = intval($_POST['allocation_id'] ?? 0);

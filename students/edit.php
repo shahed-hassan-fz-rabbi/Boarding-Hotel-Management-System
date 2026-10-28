@@ -8,6 +8,7 @@
 
 require_once '../includes/auth_check.php';
 
+requireRoles(['Admin','Teacher','Hostel Supervisor']);
 $error = '';
 $success = false;
 

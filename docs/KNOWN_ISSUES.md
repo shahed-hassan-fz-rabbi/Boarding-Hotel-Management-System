@@ -7,7 +7,7 @@ Fixed bugs are tracked in [`PROJECT_PROGRESS.md`](PROJECT_PROGRESS.md).
 
 | # | Severity | Area | Issue | Notes |
 |---|----------|------|-------|-------|
-| 1 | Medium | Frontend | **XSS via JS template literals**: `complaints/list.php` and `leaves/list.php` inject DB-backed strings (`${...}`) into the DOM without HTML-escaping. Admin/Supervisor-controlled fields could host stored XSS payloads. | Next fix candidate: `category`, `priority`, reason text, titles. Recommend `escapeHtml()` helper or switch to PHP-rendered rows. |
+| 1 | **Fixed (b060372)** | Frontend | ~~XSS via JS template literals~~ All DB-backed `${...}` values in innerHTML templates are now escaped via an `esc()` helper across students/allocations/meals/payments/complaints/leaves/dashboard/logs; onclick attribute injection removed; json_encode hardened with JSON_HEX_* flags. | Verified: E2E 31/31 + CRUD 14/14 + node --check on all 8 pages. |
 | 2 | Medium | Auth | `auth/register.php` is self-service registration. Storage-backed role selection / email-renaming check needs a re-audit before any production launch. | Recommend disabling in real deployments and provisioning users from `users/add.php` only. |
 | 3 | Low | Infra | `activity_logs` has no retention or pagination strategy; UI does not yet display log entries. | |
 | 4 | Low | Payments | Duplicate-period prevention is app-level (SELECT before INSERT), not a DB unique index on `(student_id, year, month)`. | Race window is small but a `UNIQUE KEY` migration would be strictly safer. |

@@ -20,7 +20,7 @@ This file tracks development progress in small, verified increments.
 | 12 | UI: users/list.php double-layout fixed; Reports sidebar link added | ✅ Done |
 | 13 | makepass.php restricted to Admin + CSRF | ✅ Done |
 | 14 | E2E CRUD sweep: meals, complaints, leaves, notices, settings, users | ✅ Done (14/14 CRUD + fix commit 8dbb442) |
-| 15 | XSS/output-escape hardening pass | ⬜ Next |
+| 15 | XSS/output-escape hardening pass | ✅ Done (8 pages, commit b060372) |
 | 16 | README, install/deploy docs, KNOWN_ISSUES | ✅ Done |
 | 17 | Final full `php -l` sweep + push verification | ✅ Done (45/45 clean) |
 
@@ -58,6 +58,8 @@ This file tracks development progress in small, verified increments.
 | `b239098` | fix: guard order bypass, payment 500s, atomic allocations | **E2E 31/31 PASS** (live server + live DB) | ✅ origin/main |
 | `1fef35f` | docs: progress tracker + .gitignore | php -l all 44 files clean | ✅ origin/main |
 | `8dbb442` | fix: bind_param type strings (meals), complaint update validation (status whitelist + staff existence), prepared activity-log writes everywhere | **CRUD 14/14 + E2E 31/31 PASS**; bind_param checker consistent; php -l clean | ✅ origin/main |
+| `368f8d8` | docs: README.md (install/config/security), docs/KNOWN_ISSUES.md, progress update | php -l 45/45 clean | ✅ origin/main |
+| `b060372` | fix: XSS hardening — esc() on every DB value in JS innerHTML templates (8 pages), no more names inside onclick attributes, JSON_HEX_* embedding | E2E 31/31 + CRUD 14/14 PASS; node --check valid JS on all 8 pages | ✅ origin/main |
 
 ### CRUD sweep coverage (8dbb442, PHP built-in server + live MySQL)
 - Meals: create → edit (Dinner, qty 2) → delete, marker-verified in DB
@@ -77,9 +79,9 @@ This file tracks development progress in small, verified increments.
 - Logout invalidates session
 
 ## Next task (exact steps)
-1. XSS/output-escaping pass: `complaints/list.php` + `leaves/list.php` JS template literals (escape DB values in DOM) — see KNOWN_ISSUES.md #1.
-2. Re-run E2E (31/31) + CRUD (14/14) after the escape pass; commit `fix: escape DB-sourced values in JS-rendered lists`.
-3. Consider payment-duplicate unique index migration (KNOWN_ISSUES.md #4) — schema change, needs explicit approval.
-4. Final push verification & fresh clone smoke test.
+1. Consider payment-duplicate unique index migration (KNOWN_ISSUES.md #4) — schema change, needs explicit approval.
+2. Re-audit `auth/register.php` role selection before any real deployment (KNOWN_ISSUES.md #2).
+3. Fresh-clone smoke test: clone repo into a temp dir, import SQL, `php -S`, verify BASE_URL auto-detect works from a clean clone.
+4. Optional: pagination/retention plan for activity_logs (KNOWN_ISSUES.md #3).
 
 Known environmental note: project is NOT under `htdocs`; for local serving either copy to htdocs, create an Apache alias, or run `php -S localhost:8080 -t .` (BASE_URL auto-adapts).

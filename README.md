@@ -178,6 +178,35 @@ docs/            progress tracker, known issues, screenshots
 uploads/         user-uploaded files (git-ignored, created at runtime)
 ```
 
+## Deployment (free hosting — InfinityFree)
+
+The app has zero Composer dependencies and its largest PHP file is ~40 KB, so any
+PHP 8.x + MySQL shared host works. A free InfinityFree account (checked Oct 2026:
+PHP 8.4, MySQL 8.0/MariaDB 11.4, 5 GB, no ads, free subdomain + SSL) is enough for
+a portfolio demo. Its limits that matter: 50,000 hits/day, no email sending (this
+app doesn't need it), no cron, and accounts need a visit every 30 days to stay active.
+
+1. Create a free account at infinityfree.com and pick a free subdomain.
+2. In the client panel → **MySQL Databases**: create a database; note the host
+   (`sqlXXX.infinityfree.com`), database name, user and generated password.
+3. Open the panel's **phpMyAdmin** → select the new database → *Import* → upload
+   `boarding_school.sql`.
+4. Upload the project files (File Manager or FTP, 1 FTP account on free) into
+   `htdocs/` — either at the root or a subfolder; `BASE_URL` auto-detects both.
+5. Copy `config.local.example.php` to `config.local.php` in the project root on the
+   server and fill in the credentials from step 2 (`config.local.php` is
+   git-ignored — real credentials never enter Git). Environment variables
+   `DB_HOST`/`DB_USER`/`DB_PASS`/`DB_NAME` work too.
+6. Make sure `uploads/students/` exists and is writable (the app creates it on
+   first photo upload; chmod 775 via the file manager if your host needs it).
+7. Visit the demo URL and log in with the seeded `admin@boarding.com` / `admin123`
+   account (the login page shows these demo credentials by design).
+8. To reset demo data: re-import `boarding_school.sql` in phpMyAdmin.
+
+> **Do not** put real credentials into `db.php`/Git. `db.php` never needs editing
+> between environments — it resolves credentials from `config.local.php` →
+> environment variables → XAMPP defaults, in that order.
+
 ## Known issues
 
 See [`docs/KNOWN_ISSUES.md`](docs/KNOWN_ISSUES.md).

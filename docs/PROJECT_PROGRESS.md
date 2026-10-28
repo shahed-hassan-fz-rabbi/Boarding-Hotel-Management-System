@@ -26,7 +26,8 @@ This file tracks development progress in small, verified increments.
 | 18 | Photo upload validation (admissions) + admission bind_param 500 fix | ✅ Done (f02861c, upload tests 7/7) |
 | 19 | Recruiter-facing `tests/` suite in repo (52 checks) | ✅ Done (0379ffc) |
 | 20 | Portfolio README (screenshots, honest stack statement) & known-issues refresh | ✅ Done |
-| 21 | Hosting research + live deployment | ⬜ Next |
+| 21 | Hosting research + live deployment | 🟡 Host researched & runbook in README (InfinityFree); account creation/import/upload = manual steps |
+| 22 | Env-based credential config (config.local.php → env → XAMPP defaults) + graceful DB-failure page | ✅ Done (verified both branches + failure path) |
 
 ## Verified Bug List (fixed)
 
@@ -67,6 +68,8 @@ This file tracks development progress in small, verified increments.
 | `7af9e74` | docs: XSS hardening + CRUD sweep results logged; roadmap complete | — | ✅ origin/main |
 | `f02861c` | fix: student admission 500 (bind_param 11/12 types/vars) + photo-upload validation (whitelist/size/getimagesize/random name, pre-DB-write); DB error no longer echoed; uploads/ git-ignored | upload suite 7/7 vs XAMPP Apache; improved bind_param checker proved it catches the bug class | ✅ origin/main |
 | `0379ffc` | test: repo `tests/` suite — e2e 31 + crud 14 + upload 7 + static bind_param check; CLI-only guard, env-configurable, self-cleaning | all suites green against XAMPP Apache (52/52) | local until push approval |
+| `47ce9d9` | docs: flag demo-credential billboard on login page as remove-before-production | — | local until push approval |
+| (next) | feat: env-based credential resolution (config.local.php → DB_* env → XAMPP defaults) + graceful DB-failure 500; config.local.example.php; README deployment runbook (InfinityFree) | 52/52 re-run green; env branch probed (bad DB name honored); config.local.php branch probed; failure path renders clean 500 + error_log | local until push approval |
 
 ### CRUD sweep coverage (8dbb442, PHP built-in server + live MySQL)
 - Meals: create → edit (Dinner, qty 2) → delete, marker-verified in DB

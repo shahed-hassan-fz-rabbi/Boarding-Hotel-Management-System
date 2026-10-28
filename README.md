@@ -13,9 +13,11 @@ no framework, and no Composer dependency — what you see is plain, readable PHP
 
 ## Screenshots
 
-| Login | Dashboard |
-|-------|-----------|
-| ![Login page](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+The UI ships with a warm terracotta design system in **light and dark themes** (toggle in the top bar, preference remembered; follows your system preference on first visit).
+
+| Login | Dashboard (light) | Dashboard (dark) |
+|-------|-------------------|------------------|
+| ![Login page](docs/screenshots/login.png) | ![Dashboard light](docs/screenshots/dashboard-light.png) | ![Dashboard dark](docs/screenshots/dashboard-dark.png) |
 
 ## Features
 
@@ -29,9 +31,10 @@ no framework, and no Composer dependency — what you see is plain, readable PHP
 | **Complaints** | Student/hostel complaints; routing to Admin or Hostel Supervisor; status workflow (Open → In Progress → Resolved/Rejected) |
 | **Leaves** | Leave types, applications, approval workflow, student leave balances |
 | **Notices** | Bulletin-board notices with publish dates |
-| **Attendance** | Student attendance records |
+| **Attendance** | Daily attendance sheets (manage + per-student report) |
 | **Reports** | Aggregated reports for admins |
 | **Settings / Users / Staff** | Admin-only: system settings, staff user provisioning, role changes |
+| **UI** | Warm terracotta design system, light + dark themes with persistent toggle (no flash on load), responsive layout, zero emojis — inline SVG icon set |
 
 ### Roles
 

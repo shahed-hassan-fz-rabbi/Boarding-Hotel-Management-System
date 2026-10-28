@@ -28,6 +28,7 @@ This file tracks development progress in small, verified increments.
 | 20 | Portfolio README (screenshots, honest stack statement) & known-issues refresh | ✅ Done |
 | 21 | Hosting research + live deployment | 🟡 Host researched & runbook in README (InfinityFree); account creation/import/upload = manual steps |
 | 22 | Env-based credential config (config.local.php → env → XAMPP defaults) + graceful DB-failure page | ✅ Done (verified both branches + failure path) |
+| 23 | UI redesign: warm terracotta design system, light/dark themes, zero emojis, every page unified | ✅ Done (e4f04b8 + 1b83f78; route smoke 26/26, suites green, both themes verified) |
 
 ## Verified Bug List (fixed)
 
@@ -48,6 +49,10 @@ This file tracks development progress in small, verified increments.
 | Reports module unreachable (no sidebar link) | Low | e332e13 |
 | `makepass.php` unauthenticated password-hash generator | Med | e332e13 |
 | DB errors echoed to users (`$stmt->error`) | Low | b239098 |
+| 13 module pages rendered a second nested `<!DOCTYPE>` document + duplicate embedded sidebar (stacked chrome, broken nav) | High | 1b83f78 |
+| `students/attendance/{manage,report}.php` included `../includes/auth_check.php` from two directories deep — both pages were fatal on any server | High | 1b83f78 |
+| `staff/list.php` read a nonexistent `full_name` column (empty names, search WHERE on missing column); `staff/{add,edit}.php` INSERT/UPDATE on `full_name` never persisted — module was dead | High | 1b83f78 |
+| `makepass.php` required `csrf.php` twice → `Cannot redeclare csrf_token()` fatal | Med | 1b83f78 |
 
 ## Changelog
 
@@ -70,6 +75,8 @@ This file tracks development progress in small, verified increments.
 | `0379ffc` | test: repo `tests/` suite — e2e 31 + crud 14 + upload 7 + static bind_param check; CLI-only guard, env-configurable, self-cleaning | all suites green against XAMPP Apache (52/52) | local until push approval |
 | `47ce9d9` | docs: flag demo-credential billboard on login page as remove-before-production | — | local until push approval |
 | (next) | feat: env-based credential resolution (config.local.php → DB_* env → XAMPP defaults) + graceful DB-failure 500; config.local.example.php; README deployment runbook (InfinityFree) | 52/52 re-run green; env branch probed (bad DB name honored); config.local.php branch probed; failure path renders clean 500 + error_log | local until push approval |
+| `e4f04b8` | **UI redesign I — foundation:** `assets/theme.css` (warm terracotta tokens, light default + `[data-theme="dark"]`), `assets/app.js` (toggle/persistence/system-preference), `components/icon.php` (~50 SVG line icons), header/footer rewrite (glass topbar, sun/moon toggle, no-FOUC theme init), premium split-screen auth pages, dashboard rebuilt on real DB data (hero, 6 stat tiles, revenue chart, occupancy donut, room grid, activity feeds) | php -l clean; E2E 31/31 vs dev server; emoji scan 0 in new files | ✅ origin/main |
+| `1b83f78` | **UI redesign II — page sweep:** 30 files; removed nested double-document + duplicate sidebar from 13 module pages; converted settings/logs.php to master chrome; self-themed standalone form pages; 303 emojis → SVG icons/dot spans; all legacy purple/blue/pink hexes → warm tokens; fixed attendance include paths (dead pages), staff `full_name` schema mismatch (module was dead), makepass csrf double-include; adaptive revenue window (still 100% real data) | route smoke 26/26; E2E 31/31; CRUD 14/14; upload 7/7; bind_param consistent; php -l clean; emoji scan 0; dom probe 1 DOCTYPE/1 sidebar; light+dark + persistence + mobile drawer verified in browser | ✅ origin/main |
 
 ### CRUD sweep coverage (8dbb442, PHP built-in server + live MySQL)
 - Meals: create → edit (Dinner, qty 2) → delete, marker-verified in DB
@@ -93,5 +100,7 @@ This file tracks development progress in small, verified increments.
 2. Re-audit `auth/register.php` role selection before any real deployment (KNOWN_ISSUES.md #2).
 3. Fresh-clone smoke test: clone repo into a temp dir, import SQL, `php -S`, verify BASE_URL auto-detect works from a clean clone.
 4. Optional: pagination/retention plan for activity_logs (KNOWN_ISSUES.md #3).
+5. Optional polish: README screenshots refresh (new terracotta UI, light + dark); consider dark-mode auth-page capture.
+6. Consider closing KNOWN_ISSUES.md #2 (register.php was fully rewritten in the redesign — approval gate, role whitelist, CSRF all verified in-place).
 
 Known environmental note: project is NOT under `htdocs`; for local serving either copy to htdocs, create an Apache alias, or run `php -S localhost:8080 -t .` (BASE_URL auto-adapts).

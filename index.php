@@ -43,7 +43,7 @@ if ($result && $result->num_rows > 0) {
     }
 }
 
-$roomsJSON = json_encode($rooms);
+$roomsJSON = json_encode($rooms, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 ?>
 
 <style>
@@ -164,7 +164,12 @@ $roomsJSON = json_encode($rooms);
 
 <script>
     const allRooms = <?php echo $roomsJSON; ?>;
-    
+
+    /* HTML-escape DB-sourced values before they are interpolated into innerHTML templates */
+    function esc(v) {
+        return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
     const searchInput = document.getElementById('searchInput');
     const filterType = document.getElementById('filterType');
     const sortRooms = document.getElementById('sortRooms');
@@ -183,7 +188,7 @@ $roomsJSON = json_encode($rooms);
         rooms.forEach((room, index) => {
             const badgeClass = room.status === 'Available' ? 'badge-available' : 'badge-full';
             const badgeText = room.status === 'Available' ? '✓ Available' : '✗ Full';
-            const roomTypeClass = `room-type-${room.room_type.toLowerCase()}`;
+            const roomTypeClass = `room-type-${room.room_type?.toLowerCase()}`;
 
             const card = document.createElement('div');
             card.className = 'bg-white border border-slate-200 card-room rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition';
@@ -192,13 +197,13 @@ $roomsJSON = json_encode($rooms);
                 <div class="p-6">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <h3 class="text-xl font-bold text-slate-800">${room.room_number}</h3>
-                            <span class="room-type-badge mt-1.5 ${roomTypeClass}">${room.room_type} Wing</span>
+                            <h3 class="text-xl font-bold text-slate-800">${esc(room.room_number)}</h3>
+                            <span class="room-type-badge mt-1.5 ${roomTypeClass}">${esc(room.room_type)} Wing</span>
                         </div>
                         <span class="${badgeClass}">${badgeText}</span>
                     </div>
 
-                    <p class="text-slate-500 text-xs font-medium mb-4 italic truncate">${room.description || 'No description available.'}</p>
+                    <p class="text-slate-500 text-xs font-medium mb-4 italic truncate">${esc(room.description || 'No description available.')}</p>
 
                     <div class="grid grid-cols-3 gap-2.5 mb-4">
                         <div class="bg-slate-50 border border-slate-100 rounded-xl p-2 text-center">

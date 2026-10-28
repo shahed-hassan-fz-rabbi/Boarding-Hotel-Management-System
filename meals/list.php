@@ -65,8 +65,8 @@ if ($studentResult && $studentResult->num_rows > 0) {
     }
 }
 
-$mealsJSON = json_encode($meals);
-$studentsJSON = json_encode($students);
+$mealsJSON = json_encode($meals, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+$studentsJSON = json_encode($students, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
 ?>
 
@@ -642,6 +642,11 @@ $studentsJSON = json_encode($students);
         let filteredMeals = [...allMeals];
         let deleteMealId = null;
 
+        /* HTML-escape DB-sourced values before they are interpolated into innerHTML templates */
+        function esc(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         // ============================
         // DOM Elements
         // ============================
@@ -730,22 +735,22 @@ $studentsJSON = json_encode($students);
                 row.innerHTML = `
                     <td class="px-6 py-4">
                         <div>
-                            <p class="font-600 text-slate-800">${meal.first_name} ${meal.last_name}</p>
-                            <p class="text-sm text-slate-500">${meal.student_code}</p>
+                            <p class="font-600 text-slate-800">${esc(meal.first_name)} ${esc(meal.last_name)}</p>
+                            <p class="text-sm text-slate-500">${esc(meal.student_code)}</p>
                         </div>
                     </td>
                     <td class="px-6 py-4 text-slate-700">${mealDate}</td>
                     <td class="px-6 py-4">
-                        <span class="${mealTypeClass}">${meal.meal_type}</span>
+                        <span class="${mealTypeClass}">${esc(meal.meal_type)}</span>
                     </td>
-                    <td class="px-6 py-4 text-slate-700">${meal.room_number || 'N/A'}</td>
+                    <td class="px-6 py-4 text-slate-700">${esc(meal.room_number || 'N/A')}</td>
                     <td class="px-6 py-4 text-center">
                         <span class="${servedClass}">${servedText}</span>
                     </td>
                     <td class="px-6 py-4 text-slate-700">${meal.quantity ? meal.quantity + ' kg' : '-'}</td>
                     <td class="px-6 py-4 text-center">
                         <button class="btn-edit btn-sm" onclick="editMeal(${meal.id})">✏️ Edit</button>
-                        <button class="btn-danger btn-sm" onclick="openDeleteModal(${meal.id}, '${meal.first_name} ${meal.last_name}')">🗑️ Delete</button>
+                        <button class="btn-danger btn-sm" onclick="openDeleteModal(${meal.id})">🗑️ Delete</button>
                     </td>
                 `;
                 mealTableBody.appendChild(row);
@@ -772,9 +777,10 @@ $studentsJSON = json_encode($students);
             document.getElementById('formError').classList.add('hidden');
         }
 
-        function openDeleteModal(id, name) {
+        function openDeleteModal(id) {
             deleteMealId = id;
-            document.getElementById('deleteInfo').textContent = `${name}'s Meal Record`;
+            const m = allMeals.find(x => x.id === id);
+            document.getElementById('deleteInfo').textContent = m ? `${m.first_name} ${m.last_name}'s Meal Record` : 'This meal record';
             deleteModal.classList.add('active');
         }
 

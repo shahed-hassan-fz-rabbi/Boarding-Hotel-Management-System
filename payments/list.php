@@ -69,8 +69,8 @@ if ($studentResult && $studentResult->num_rows > 0) {
     }
 }
 
-$paymentsJSON = json_encode($payments);
-$studentsJSON = json_encode($students);
+$paymentsJSON = json_encode($payments, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+$studentsJSON = json_encode($students, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
 ?>
 
@@ -668,6 +668,11 @@ $studentsJSON = json_encode($students);
         let filteredPayments = [...allPayments];
         let deletePaymentId = null;
 
+        /* HTML-escape DB-sourced values before they are interpolated into innerHTML templates */
+        function esc(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         // ============================
         // DOM Elements
         // ============================
@@ -770,8 +775,8 @@ $studentsJSON = json_encode($students);
                 row.innerHTML = `
                     <td class="px-6 py-4">
                         <div>
-                            <p class="font-600 text-slate-800">${payment.first_name} ${payment.last_name}</p>
-                            <p class="text-sm text-slate-500">${payment.student_code}</p>
+                            <p class="font-600 text-slate-800">${esc(payment.first_name)} ${esc(payment.last_name)}</p>
+                            <p class="text-sm text-slate-500">${esc(payment.student_code)}</p>
                         </div>
                     </td>
                     <td class="px-6 py-4 text-slate-700">${getMonthName(payment.month)} ${payment.year}</td>
@@ -785,7 +790,7 @@ $studentsJSON = json_encode($students);
                     </td>
                     <td class="px-6 py-4 text-center">
                         <button class="btn-edit btn-sm" onclick="editPayment(${payment.id})">✏️ Edit</button>
-                        <button class="btn-danger btn-sm" onclick="openDeleteModal(${payment.id}, '${payment.first_name} ${payment.last_name}')">🗑️ Delete</button>
+                        <button class="btn-danger btn-sm" onclick="openDeleteModal(${payment.id})">🗑️ Delete</button>
                     </td>
                 `;
                 paymentTableBody.appendChild(row);
@@ -811,9 +816,10 @@ $studentsJSON = json_encode($students);
             document.getElementById('formError').classList.add('hidden');
         }
 
-        function openDeleteModal(id, name) {
+        function openDeleteModal(id) {
             deletePaymentId = id;
-            document.getElementById('deleteInfo').textContent = `${name}`;
+            const p = allPayments.find(x => x.id === id);
+            document.getElementById('deleteInfo').textContent = p ? `${p.first_name} ${p.last_name}` : 'This payment';
             deleteModal.classList.add('active');
         }
 

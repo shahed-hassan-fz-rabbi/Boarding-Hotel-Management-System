@@ -43,7 +43,7 @@ $totalStudents = count($students);
 $activeStudents = count(array_filter($students, fn($s) => $s['status'] === 'Active'));
 $inactiveStudents = $totalStudents - $activeStudents;
 
-$studentsJSON = json_encode($students);
+$studentsJSON = json_encode($students, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
 ?>
 
@@ -666,6 +666,11 @@ $studentsJSON = json_encode($students);
     <!-- JavaScript -->
     <script>
         const allStudents = <?php echo $studentsJSON; ?>;
+
+        /* HTML-escape DB-sourced values before they are interpolated into innerHTML templates */
+        function esc(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
         let filteredStudents = [...allStudents];
         let deleteStudentId = null;
 
@@ -742,8 +747,8 @@ $studentsJSON = json_encode($students);
                 const statusText = student.status === 'Active' ? '✓ Active' : '✗ Inactive';
 
                 const photoSrc = student.photo 
-                    ? `uploads/students/${student.photo}` 
-                    : `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23667eea' width='100' height='100'/%3E%3Ctext x='50' y='60' font-size='50' fill='white' text-anchor='middle' font-family='Arial'%3E${student.first_name.charAt(0)}${student.last_name.charAt(0)}%3C/text%3E%3C/svg%3E`;
+                    ? `uploads/students/${encodeURIComponent(student.photo)}` 
+                    : `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23667eea' width='100' height='100'/%3E%3Ctext x='50' y='60' font-size='50' fill='white' text-anchor='middle' font-family='Arial'%3E${encodeURIComponent(student.first_name?.charAt(0) + (student.last_name?.charAt(0) ?? ''))}%3C/text%3E%3C/svg%3E`;
 
                 const row = document.createElement('tr');
                 row.className = 'student-row fade-in';
@@ -752,20 +757,20 @@ $studentsJSON = json_encode($students);
                     <td class="px-6 py-4 flex items-center gap-3">
                         <img src="${photoSrc}" alt="Avatar" class="student-avatar" style="width: 40px; height: 40px; border-radius: 50%;">
                         <div>
-                            <p class="font-600 text-slate-800">${student.first_name} ${student.last_name}</p>
-                            <p class="text-sm text-slate-500">${student.gender}</p>
+                            <p class="font-600 text-slate-800">${esc(student.first_name)} ${esc(student.last_name)}</p>
+                            <p class="text-sm text-slate-500">${esc(student.gender)}</p>
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-slate-700">${student.student_code || 'N/A'}</td>
-                    <td class="px-6 py-4 text-slate-700">${student.email}</td>
-                    <td class="px-6 py-4 text-slate-700">${student.phone}</td>
+                    <td class="px-6 py-4 text-slate-700">${esc(student.student_code || 'N/A')}</td>
+                    <td class="px-6 py-4 text-slate-700">${esc(student.email)}</td>
+                    <td class="px-6 py-4 text-slate-700">${esc(student.phone)}</td>
                     <td class="px-6 py-4 text-slate-700">${new Date(student.admission_date).toLocaleDateString()}</td>
                     <td class="px-6 py-4">
                         <span class="${statusClass}">${statusText}</span>
                     </td>
                     <td class="px-6 py-4 text-center">
                         <button class="btn-edit btn-sm" onclick="editStudent(${student.id})">✏️ Edit</button>
-                        <button class="btn-danger btn-sm" onclick="openDeleteModal(${student.id}, '${student.first_name} ${student.last_name}')">🗑️ Delete</button>
+                        <button class="btn-danger btn-sm" onclick="openDeleteModal(${student.id})">🗑️ Delete</button>
                     </td>
                 `;
                 studentTableBody.appendChild(row);
@@ -801,7 +806,9 @@ $studentsJSON = json_encode($students);
 
         function openDeleteModal(id, name) {
             deleteStudentId = id;
-            document.getElementById('deleteStudentName').textContent = name;
+            const s = allStudents.find(x => x.id === id);
+            document.getElementById('deleteStudentName').textContent
+                = (name ?? '') || (s ? `${s.first_name} ${s.last_name}` : 'this student');
             deleteModal.classList.add('active');
         }
 

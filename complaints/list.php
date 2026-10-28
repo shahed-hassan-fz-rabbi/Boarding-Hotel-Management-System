@@ -81,9 +81,9 @@ if ($studentResult && $studentResult->num_rows > 0) {
     }
 }
 
-$complaintsJSON = json_encode($complaints);
-$staffJSON = json_encode($staff);
-$studentsJSON = json_encode($students);
+$complaintsJSON = json_encode($complaints, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+$staffJSON = json_encode($staff, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+$studentsJSON = json_encode($students, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
 ?>
 
@@ -685,6 +685,11 @@ $studentsJSON = json_encode($students);
         const staff = <?php echo $staffJSON; ?>;
         let filteredComplaints = [...allComplaints];
 
+        /* HTML-escape DB-sourced values before they are interpolated into innerHTML templates */
+        function esc(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         // ============================
         // DOM Elements
         // ============================
@@ -776,25 +781,25 @@ $studentsJSON = json_encode($students);
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-3">
                         <div class="flex-1">
-                            <h3 class="text-lg font-600 text-slate-800">${complaint.complaint_title}</h3>
-                            <p class="text-sm text-slate-600 mt-1">By: ${complaint.student_first_name} ${complaint.student_last_name} (${complaint.student_code})</p>
+                            <h3 class="text-lg font-600 text-slate-800">${esc(complaint.complaint_title)}</h3>
+                            <p class="text-sm text-slate-600 mt-1">By: ${esc(complaint.student_first_name)} ${esc(complaint.student_last_name)} (${esc(complaint.student_code)})</p>
                         </div>
                         <div class="flex gap-2">
                             <span class="${priorityClass}">${priorityText}</span>
-                            <span class="${statusClass}">${complaint.status}</span>
+                            <span class="${statusClass}">${esc(complaint.status)}</span>
                         </div>
                     </div>
 
-                    <p class="text-slate-600 mb-3">${complaint.complaint_description.substring(0, 150)}...</p>
+                    <p class="text-slate-600 mb-3">${esc(complaint.complaint_description?.substring(0, 150))}...</p>
 
                     <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
                         <div>
                             <p class="text-slate-600">Category</p>
-                            <p class="font-600 text-slate-800">${complaint.category}</p>
+                            <p class="font-600 text-slate-800">${esc(complaint.category)}</p>
                         </div>
                         <div>
                             <p class="text-slate-600">Assigned To</p>
-                            <p class="font-600 text-slate-800">${complaint.assigned_staff_name || 'Unassigned'}</p>
+                            <p class="font-600 text-slate-800">${esc(complaint.assigned_staff_name || 'Unassigned')}</p>
                         </div>
                         <div>
                             <p class="text-slate-600">Filed On</p>
@@ -842,41 +847,41 @@ $studentsJSON = json_encode($students);
                 <div class="mb-6">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <h2 class="text-2xl font-bold text-slate-800">${complaint.complaint_title}</h2>
+                            <h2 class="text-2xl font-bold text-slate-800">${esc(complaint.complaint_title)}</h2>
                             <p class="text-slate-600 mt-1">Complaint #${complaint.id}</p>
                         </div>
-                        <span class="${statusClass} text-lg">${complaint.status}</span>
+                        <span class="${statusClass} text-lg">${esc(complaint.status)}</span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="bg-slate-100 p-4 rounded-lg">
                             <p class="text-slate-600 text-sm">Student</p>
-                            <p class="font-600 text-slate-800">${complaint.student_first_name} ${complaint.student_last_name}</p>
-                            <p class="text-sm text-slate-600">${complaint.student_code}</p>
+                            <p class="font-600 text-slate-800">${esc(complaint.student_first_name)} ${esc(complaint.student_last_name)}</p>
+                            <p class="text-sm text-slate-600">${esc(complaint.student_code)}</p>
                         </div>
                         <div class="bg-slate-100 p-4 rounded-lg">
                             <p class="text-slate-600 text-sm">Room</p>
-                            <p class="font-600 text-slate-800">${complaint.room_number || 'N/A'}</p>
+                            <p class="font-600 text-slate-800">${esc(complaint.room_number || 'N/A')}</p>
                         </div>
                         <div class="bg-slate-100 p-4 rounded-lg">
                             <p class="text-slate-600 text-sm">Category</p>
-                            <p class="font-600 text-slate-800">${complaint.category}</p>
+                            <p class="font-600 text-slate-800">${esc(complaint.category)}</p>
                         </div>
                         <div class="bg-slate-100 p-4 rounded-lg">
                             <p class="text-slate-600 text-sm">Priority</p>
-                            <span class="${priorityClass}">${complaint.priority}</span>
+                            <span class="${priorityClass}">${esc(complaint.priority)}</span>
                         </div>
                     </div>
 
                     <div class="mb-6">
                         <h3 class="font-600 text-slate-800 mb-2">Description</h3>
-                        <p class="text-slate-600 leading-relaxed">${complaint.complaint_description}</p>
+                        <p class="text-slate-600 leading-relaxed">${esc(complaint.complaint_description)}</p>
                     </div>
 
                     ${complaint.resolution_notes ? `
                     <div class="mb-6 bg-green-50 p-4 rounded-lg border border-green-200">
                         <h3 class="font-600 text-green-800 mb-2">Resolution Notes</h3>
-                        <p class="text-green-700">${complaint.resolution_notes}</p>
+                        <p class="text-green-700">${esc(complaint.resolution_notes)}</p>
                     </div>
                     ` : ''}
 
@@ -887,7 +892,7 @@ $studentsJSON = json_encode($students);
                         </div>
                         <div class="bg-slate-100 p-4 rounded-lg">
                             <p class="text-slate-600 text-sm">Assigned To</p>
-                            <p class="font-600 text-slate-800">${complaint.assigned_staff_name || 'Unassigned'}</p>
+                            <p class="font-600 text-slate-800">${esc(complaint.assigned_staff_name || 'Unassigned')}</p>
                         </div>
                     </div>
             `;
@@ -913,13 +918,13 @@ $studentsJSON = json_encode($students);
                             <label class="form-label">Assign To</label>
                             <select name="assigned_to" class="input-field w-full">
                                 <option value="">-- Unassigned --</option>
-                                ${staff.map(s => `<option value="${s.id}" ${complaint.assigned_to === s.id ? 'selected' : ''}>${s.full_name}</option>`).join('')}
+                                ${staff.map(s => `<option value="${s.id}" ${complaint.assigned_to === s.id ? 'selected' : ''}>${esc(s.full_name)}</option>`).join('')}
                             </select>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label">Resolution Notes</label>
-                            <textarea name="resolution_notes" class="input-field w-full" rows="3">${complaint.resolution_notes || ''}</textarea>
+                            <textarea name="resolution_notes" class="input-field w-full" rows="3">${esc(complaint.resolution_notes || '')}</textarea>
                         </div>
 
                         <input type="hidden" name="complaint_id" value="${complaint.id}">

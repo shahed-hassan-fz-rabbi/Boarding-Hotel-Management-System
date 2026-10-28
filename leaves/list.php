@@ -73,9 +73,9 @@ if ($typeResult && $typeResult->num_rows > 0) {
     }
 }
 
-$leavesJSON = json_encode($leaves);
-$studentsJSON = json_encode($students);
-$leaveTypesJSON = json_encode($leaveTypes);
+$leavesJSON = json_encode($leaves, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+$studentsJSON = json_encode($students, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+$leaveTypesJSON = json_encode($leaveTypes, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
 ?>
 
@@ -631,6 +631,11 @@ $leaveTypesJSON = json_encode($leaveTypes);
         const userRole = '<?php echo $user_role; ?>';
         let filteredLeaves = [...allLeaves];
 
+        /* HTML-escape DB-sourced values before they are interpolated into innerHTML templates */
+        function esc(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         // ============================
         // DOM Elements
         // ============================
@@ -728,11 +733,11 @@ $leaveTypesJSON = json_encode($leaveTypes);
                 row.innerHTML = `
                     <td class="px-6 py-4">
                         <div>
-                            <p class="font-600 text-slate-800">${leave.first_name} ${leave.last_name}</p>
-                            <p class="text-sm text-slate-500">${leave.student_code}</p>
+                            <p class="font-600 text-slate-800">${esc(leave.first_name)} ${esc(leave.last_name)}</p>
+                            <p class="text-sm text-slate-500">${esc(leave.student_code)}</p>
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-slate-700">${leave.leave_type_name}</td>
+                    <td class="px-6 py-4 text-slate-700">${esc(leave.leave_type_name)}</td>
                     <td class="px-6 py-4 text-slate-700">
                         <div>
                             <p>${fromDate}</p>
@@ -741,7 +746,7 @@ $leaveTypesJSON = json_encode($leaveTypes);
                     </td>
                     <td class="px-6 py-4 text-center font-600 text-slate-800">${leave.number_of_days}</td>
                     <td class="px-6 py-4">
-                        <span class="${statusClass}">${leave.status}</span>
+                        <span class="${statusClass}">${esc(leave.status)}</span>
                     </td>
                     <td class="px-6 py-4 text-slate-700">${appliedDate}</td>
                     <td class="px-6 py-4 text-center">
@@ -777,16 +782,16 @@ $leaveTypesJSON = json_encode($leaveTypes);
                 <div class="mb-6">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <h2 class="text-2xl font-bold text-slate-800">${leave.first_name} ${leave.last_name}</h2>
-                            <p class="text-slate-600 mt-1">${leave.student_code}</p>
+                            <h2 class="text-2xl font-bold text-slate-800">${esc(leave.first_name)} ${esc(leave.last_name)}</h2>
+                            <p class="text-slate-600 mt-1">${esc(leave.student_code)}</p>
                         </div>
-                        <span class="${statusClass} text-lg">${leave.status}</span>
+                        <span class="${statusClass} text-lg">${esc(leave.status)}</span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div class="bg-slate-100 p-4 rounded-lg">
                             <p class="text-slate-600 text-sm">Leave Type</p>
-                            <p class="font-600 text-slate-800">${leave.leave_type_name}</p>
+                            <p class="font-600 text-slate-800">${esc(leave.leave_type_name)}</p>
                         </div>
                         <div class="bg-slate-100 p-4 rounded-lg">
                             <p class="text-slate-600 text-sm">Number of Days</p>
@@ -804,7 +809,7 @@ $leaveTypesJSON = json_encode($leaveTypes);
 
                     <div class="mb-6">
                         <h3 class="font-600 text-slate-800 mb-2">Reason</h3>
-                        <p class="text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-lg">${leave.reason}</p>
+                        <p class="text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-lg">${esc(leave.reason)}</p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 mb-6">
@@ -814,7 +819,7 @@ $leaveTypesJSON = json_encode($leaveTypes);
                         </div>
                         <div class="bg-slate-100 p-4 rounded-lg">
                             <p class="text-slate-600 text-sm">Approved By</p>
-                            <p class="font-600 text-slate-800">${leave.approved_by_name || 'Pending'}</p>
+                            <p class="font-600 text-slate-800">${esc(leave.approved_by_name || 'Pending')}</p>
                         </div>
                     </div>
             `;
@@ -823,7 +828,7 @@ $leaveTypesJSON = json_encode($leaveTypes);
                 reviewHTML += `
                     <div class="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-200">
                         <h3 class="font-600 text-blue-800 mb-2">Approval Notes</h3>
-                        <p class="text-blue-700">${leave.approval_notes}</p>
+                        <p class="text-blue-700">${esc(leave.approval_notes)}</p>
                     </div>
                 `;
             }
@@ -867,7 +872,7 @@ $leaveTypesJSON = json_encode($leaveTypes);
             form.innerHTML = `
                 <input type="hidden" name="leave_id" value="${id}">
                 <input type="hidden" name="action" value="approve">
-                <input type="hidden" name="approval_notes" value="${approvalNotes}">
+                <input type="hidden" name="approval_notes" value="${esc(approvalNotes)}">
             `;
             document.body.appendChild(form);
             form.submit();
@@ -881,7 +886,7 @@ $leaveTypesJSON = json_encode($leaveTypes);
             form.innerHTML = `
                 <input type="hidden" name="leave_id" value="${id}">
                 <input type="hidden" name="action" value="reject">
-                <input type="hidden" name="approval_notes" value="${approvalNotes}">
+                <input type="hidden" name="approval_notes" value="${esc(approvalNotes)}">
             `;
             document.body.appendChild(form);
             form.submit();

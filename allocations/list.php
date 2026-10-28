@@ -94,9 +94,9 @@ if ($studentResult && $studentResult->num_rows > 0) {
     }
 }
 
-$allocationsJSON = json_encode($allocations);
-$availableBedsJSON = json_encode($availableBeds);
-$studentsJSON = json_encode($students);
+$allocationsJSON = json_encode($allocations, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+$availableBedsJSON = json_encode($availableBeds, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+$studentsJSON = json_encode($students, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
 ?>
 
@@ -635,6 +635,11 @@ $studentsJSON = json_encode($students);
         let filteredAllocations = [...allAllocations];
         let deallocateId = null;
 
+        /* HTML-escape DB-sourced values before they are interpolated into innerHTML templates */
+        function esc(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         // ============================
         // DOM Elements
         // ============================
@@ -697,7 +702,7 @@ $studentsJSON = json_encode($students);
             noResults.classList.add('hidden');
 
             allocations.forEach((alloc, index) => {
-                const roomTypeBadgeClass = `room-type-${alloc.room_type.toLowerCase()}`;
+                const roomTypeBadgeClass = `room-type-${alloc.room_type?.toLowerCase()}`;
                 const checkInDate = new Date(alloc.check_in).toLocaleDateString();
                 const days = Math.floor((Date.now() - new Date(alloc.check_in).getTime()) / (1000 * 60 * 60 * 24));
 
@@ -707,15 +712,15 @@ $studentsJSON = json_encode($students);
                 row.innerHTML = `
                     <td class="px-6 py-4">
                         <div>
-                            <p class="font-600 text-slate-800">${alloc.first_name} ${alloc.last_name}</p>
-                            <p class="text-sm text-slate-500">${alloc.student_code}</p>
+                            <p class="font-600 text-slate-800">${esc(alloc.first_name)} ${esc(alloc.last_name)}</p>
+                            <p class="text-sm text-slate-500">${esc(alloc.student_code)}</p>
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-slate-700">${alloc.room_number}</td>
+                    <td class="px-6 py-4 text-slate-700">${esc(alloc.room_number)}</td>
                     <td class="px-6 py-4">
                         <div>
-                            <p class="font-600 text-slate-800">${alloc.bed_number}</p>
-                            <p class="text-sm text-slate-500">${alloc.bed_type}</p>
+                            <p class="font-600 text-slate-800">${esc(alloc.bed_number)}</p>
+                            <p class="text-sm text-slate-500">${esc(alloc.bed_type)}</p>
                         </div>
                     </td>
                     <td class="px-6 py-4 text-slate-700">
@@ -726,11 +731,11 @@ $studentsJSON = json_encode($students);
                     </td>
                     <td class="px-6 py-4">
                         <span class="room-type-badge ${roomTypeBadgeClass}">
-                            ${alloc.room_type}
+                            ${esc(alloc.room_type)}
                         </span>
                     </td>
                     <td class="px-6 py-4 text-center">
-                        <button class="btn-danger btn-sm" onclick="openDeallocateModal(${alloc.allocation_id}, '${alloc.first_name} ${alloc.last_name}', '${alloc.room_number}')">
+                        <button class="btn-danger btn-sm" onclick="openDeallocateModal(${alloc.allocation_id})">
                             🗑️ Remove
                         </button>
                     </td>
@@ -753,9 +758,11 @@ $studentsJSON = json_encode($students);
             allocateForm.reset();
         }
 
-        function openDeallocateModal(id, studentName, roomNumber) {
+        function openDeallocateModal(id) {
             deallocateId = id;
-            document.getElementById('deallocateInfo').textContent = `${studentName} from Room ${roomNumber}`;
+            const a = allAllocations.find(x => x.allocation_id === id);
+            const info = a ? `${a.first_name} ${a.last_name} from Room ${a.room_number}` : 'This allocation';
+            document.getElementById('deallocateInfo').textContent = info;
             deallocateModal.classList.add('active');
         }
 

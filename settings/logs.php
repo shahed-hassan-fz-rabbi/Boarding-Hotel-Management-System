@@ -56,7 +56,7 @@ $countRow = $countResult ? $countResult->fetch_assoc() : ['total' => 0];
 $totalLogs = $countRow['total'];
 $totalPages = ceil($totalLogs / $limit);
 
-$logsJSON = json_encode($logs);
+$logsJSON = json_encode($logs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 
 ?>
 
@@ -317,6 +317,11 @@ $logsJSON = json_encode($logs);
         const allLogs = <?php echo $logsJSON; ?>;
         let filteredLogs = [...allLogs];
 
+        /* HTML-escape DB-sourced values before they are interpolated into innerHTML templates */
+        function esc(v) {
+            return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         const searchInput = document.getElementById('searchInput');
         const logsContainer = document.getElementById('logsContainer');
 
@@ -349,13 +354,13 @@ $logsJSON = json_encode($logs);
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
                             <p class="log-time">${formatDateTime(log.created_at)}</p>
-                            <p class="log-action">${log.action}</p>
+                            <p class="log-action">${esc(log.action)}</p>
                             <p class="log-user">
-                                By: <strong>${log.full_name || 'System'}</strong>
-                                ${log.email ? '(' + log.email + ')' : ''}
+                                By: <strong>${esc(log.full_name || 'System')}</strong>
+                                ${log.email ? '(' + esc(log.email) + ')' : ''}
                             </p>
                         </div>
-                        <span class="badge badge-info">${log.ip_address || 'N/A'}</span>
+                        <span class="badge badge-info">${esc(log.ip_address || 'N/A')}</span>
                     </div>
                 `;
                 logsContainer.appendChild(logDiv);

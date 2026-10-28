@@ -12,8 +12,7 @@ Fixed bugs are tracked in [`PROJECT_PROGRESS.md`](PROJECT_PROGRESS.md).
 | 3 | Low | Infra | `activity_logs` has no retention or pagination strategy; UI does not yet display log entries. | |
 | 4 | Low | Payments | Duplicate-period prevention is app-level (SELECT before INSERT), not a DB unique index on `(student_id, year, month)`. | Race window is small but a `UNIQUE KEY` migration would be strictly safer. |
 | 5 | Low | Leaves | Leave-balance mutation happens inside the approve handler workflow; corner cases (re-approval of a cancelled leave) may double-credit. | Reviewed as low-impact; recommend idempotency check. |
-| 6 | Info | Infra | `gui/error` paths render `htmlspecialchar`-escaped but DB error text is only logged (error_log) not surfaced — good — yet **no visible fallback redirect** short of the browser back button for some invalid-GET paths. | Cosmetic. |
-| 7 | Info | Ops | `php -S` in PowerShell background sessions may show exit code 1 noise on stderr for successful git pushes; unrelated to app. | Ignore. |
+| 6 | Info | Frontend | Login page displays demo credentials (email + password billboard, pre-filled form). Convenient for portfolio demos, but it is a **must-remove item for any real deployment**. | By design in the original app; flagged for the demo audience. |
 
 ## Fixed (for reference — see PROJECT_PROGRESS.md)
 

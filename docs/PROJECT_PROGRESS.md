@@ -19,10 +19,10 @@ This file tracks development progress in small, verified increments.
 | 11 | Config: dynamic BASE_URL (any folder name / install depth) | ✅ Done |
 | 12 | UI: users/list.php double-layout fixed; Reports sidebar link added | ✅ Done |
 | 13 | makepass.php restricted to Admin + CSRF | ✅ Done |
-| 14 | E2E CRUD sweep: meals, complaints, leaves, notices, settings, users | ⬜ Next |
-| 15 | XSS/output-escape hardening pass | ⬜ Pending |
-| 16 | README, install/deploy docs, KNOWN_ISSUES | ⬜ Pending |
-| 17 | Final full `php -l` sweep + push verification | ⬜ Pending |
+| 14 | E2E CRUD sweep: meals, complaints, leaves, notices, settings, users | ✅ Done (14/14 CRUD + fix commit 8dbb442) |
+| 15 | XSS/output-escape hardening pass | ⬜ Next |
+| 16 | README, install/deploy docs, KNOWN_ISSUES | ✅ Done |
+| 17 | Final full `php -l` sweep + push verification | ✅ Done (45/45 clean) |
 
 ## Verified Bug List (fixed)
 
@@ -56,6 +56,17 @@ This file tracks development progress in small, verified increments.
 | `c0aa790` | fix: RBAC enforcement on all state-changing handlers; legacy roles purged | php -l 20 files; legacy-role grep clean | ✅ origin/main |
 | `e332e13` | fix: dynamic BASE_URL, reports nav, users layout, admin-only hash tool | BASE_URL unit tests 5/5 contexts; php -l clean | ✅ origin/main |
 | `b239098` | fix: guard order bypass, payment 500s, atomic allocations | **E2E 31/31 PASS** (live server + live DB) | ✅ origin/main |
+| `1fef35f` | docs: progress tracker + .gitignore | php -l all 44 files clean | ✅ origin/main |
+| `8dbb442` | fix: bind_param type strings (meals), complaint update validation (status whitelist + staff existence), prepared activity-log writes everywhere | **CRUD 14/14 + E2E 31/31 PASS**; bind_param checker consistent; php -l clean | ✅ origin/main |
+
+### CRUD sweep coverage (8dbb442, PHP built-in server + live MySQL)
+- Meals: create → edit (Dinner, qty 2) → delete, marker-verified in DB
+- Complaints: create with whitelist priority → update to Resolved, assigned to a real active staff id
+- Leaves: apply (3-day date range → days computed = 3) → approve by logged-in admin id
+- Notices: create → edit persistence
+- Settings: save system settings
+- Users: provision as Teacher → change role to Accountant → suspend (status 0)
+- Test cleanup verified: zero residual E2E-CRUD rows; live data (users 3,4,5, 5 students) intact
 
 ### E2E test coverage (b239098, PHP built-in server + live MySQL)
 - Login page load, CSRF rejection without token, login with token, dashboard render
@@ -66,9 +77,9 @@ This file tracks development progress in small, verified increments.
 - Logout invalidates session
 
 ## Next task (exact steps)
-1. Extend E2E with CRUD sweep for meals/complaints/leaves/notices/settings/users (POST with tokens from each list page).
-2. Fix anything the sweep exposes, commit as `test: ...` / `fix: ...`.
-3. XSS/output-escaping pass over JS template literals rendering DB data.
-4. Write README.md, docs/KNOWN_ISSUES.md; final php -l; update this file; push.
+1. XSS/output-escaping pass: `complaints/list.php` + `leaves/list.php` JS template literals (escape DB values in DOM) — see KNOWN_ISSUES.md #1.
+2. Re-run E2E (31/31) + CRUD (14/14) after the escape pass; commit `fix: escape DB-sourced values in JS-rendered lists`.
+3. Consider payment-duplicate unique index migration (KNOWN_ISSUES.md #4) — schema change, needs explicit approval.
+4. Final push verification & fresh clone smoke test.
 
 Known environmental note: project is NOT under `htdocs`; for local serving either copy to htdocs, create an Apache alias, or run `php -S localhost:8080 -t .` (BASE_URL auto-adapts).

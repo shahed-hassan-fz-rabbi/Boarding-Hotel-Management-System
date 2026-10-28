@@ -20,7 +20,7 @@ $error = '';
 
 /* Handle Secure Form Submission (FIXED: Moved BEFORE header rendering to stop "Headers Already Sent") */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'sync_user') {
-    $target_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+    $target_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : (isset($_GET['id']) ? intval($_GET['id']) : 0);
     $role = $_POST['role'] ?? 'Teacher';
     $status = intval($_POST['status'] ?? 0);
     $password = $_POST['password'] ?? '';

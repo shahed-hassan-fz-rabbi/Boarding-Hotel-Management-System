@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $stmt = $conn->prepare($sql);
         if ($stmt) {
-            $stmt->bind_param('issiisi', $student_id, $meal_date, $meal_type, $served, $quantity, $notes, $meal_id);
+            $stmt->bind_param('issidsi', $student_id, $meal_date, $meal_type, $served, $quantity, $notes, $meal_id);
             
             if ($stmt->execute()) {
                 $success = true;

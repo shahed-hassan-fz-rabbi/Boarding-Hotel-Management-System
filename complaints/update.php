@@ -14,8 +14,8 @@ $error = '';
 $success = '';
 $complaint = null;
 
-// Get complaint ID from URL
-$complaint_id = $_GET['id'] ?? 0;
+// Get complaint ID (form posts it; direct link may pass it via query string)
+$complaint_id = intval($_POST['complaint_id'] ?? $_GET['id'] ?? 0);
 
 if ($complaint_id <= 0) {
     header('Location: list.php?error=invalid_id');
@@ -45,32 +45,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validation
     if (empty($new_status)) {
         $error = '❌ Please select a status';
+    } else if (!in_array($new_status, ['Open', 'In Progress', 'Resolved', 'Rejected'], true)) {
+        $error = '❌ Invalid status selected';
     } else {
-        // Update complaint
-        $resolved_at = NULL;
-        if ($new_status == 'Resolved') {
-            $resolved_at = date('Y-m-d H:i:s');
+
+        /* Validate assigned_to against the actual staff list (prevents FK errors) */
+        $assigned_to_val = (!empty($assigned_to) && ctype_digit((string)$assigned_to)) ? (int)$assigned_to : null;
+        if ($assigned_to_val !== null) {
+            $validStaff = $conn->prepare("SELECT id FROM users WHERE id = ? AND role IN ('Admin', 'Hostel Supervisor') AND status = 1");
+            $validStaff->bind_param('i', $assigned_to_val);
+            $validStaff->execute();
+            if ($validStaff->get_result()->num_rows === 0) {
+                $error = '❌ Selected assignment staff member was not found or inactive.';
+            }
+            $validStaff->close();
         }
 
-        $assigned_to_val = (!empty($assigned_to)) ? (int)$assigned_to : null;
+        if (empty($error)) {
+            // Update complaint
+            $resolved_at = NULL;
+            if ($new_status == 'Resolved') {
+                $resolved_at = date('Y-m-d H:i:s');
+            }
 
-        $stmt = $conn->prepare("UPDATE complaints SET status = ?, assigned_to = ?, resolution_notes = ?, resolved_at = ?, updated_at = NOW() WHERE id = ?");
-        $stmt->bind_param("ssssi", $new_status, $assigned_to_val, $resolution_notes, $resolved_at, $complaint_id);
+            $stmt = $conn->prepare("UPDATE complaints SET status = ?, assigned_to = ?, resolution_notes = ?, resolved_at = ?, updated_at = NOW() WHERE id = ?");
+            $stmt->bind_param("ssssi", $new_status, $assigned_to_val, $resolution_notes, $resolved_at, $complaint_id);
 
-        if ($stmt->execute()) {
-            $success = '✅ Complaint status updated successfully!';
-            $conn->query("INSERT INTO activity_logs (user_id, action, ip_address) VALUES ({$user_id}, 'Updated Complaint ID: {$complaint_id} Status to {$new_status}', '{$_SERVER['REMOTE_ADDR']}')");
-            
-            // Refresh complaint data
-            $stmt2 = $conn->prepare("SELECT c.*, s.first_name, s.last_name, s.student_code, u.full_name as assigned_to_name FROM complaints c LEFT JOIN students s ON c.student_id = s.id LEFT JOIN users u ON c.assigned_to = u.id WHERE c.id = ?");
-            $stmt2->bind_param("i", $complaint_id);
-            $stmt2->execute();
-            $complaint = $stmt2->fetch_assoc();
-            $stmt2->close();
-        } else {
-            $error = '❌ Error updating complaint: ' . $conn->error;
+            if ($stmt->execute()) {
+                $success = '✅ Complaint status updated successfully!';
+
+                $logStmt = $conn->prepare("INSERT INTO activity_logs (user_id, action, ip_address) VALUES ((?), CONCAT('Updated Complaint ID: ', (?), ' Status to ', (?)), (?))");
+                if ($logStmt) {
+                    $ip = $_SERVER['REMOTE_ADDR'];
+                    $logStmt->bind_param('iiss', $user_id, $complaint_id, $new_status, $ip);
+                    $logStmt->execute();
+                    $logStmt->close();
+                }
+
+                // Refresh complaint data
+                $stmt2 = $conn->prepare("SELECT c.*, s.first_name, s.last_name, s.student_code, u.full_name as assigned_to_name FROM complaints c LEFT JOIN students s ON c.student_id = s.id LEFT JOIN users u ON c.assigned_to = u.id WHERE c.id = ?");
+                $stmt2->bind_param("i", $complaint_id);
+                $stmt2->execute();
+                $complaint = $stmt2->fetch_assoc();
+                $stmt2->close();
+            } else {
+                error_log('complaints/update.php failed: ' . $stmt->error);
+                $error = '❌ Error updating complaint. Please try again.';
+            }
+            $stmt->close();
         }
-        $stmt->close();
     }
 }
 

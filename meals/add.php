@@ -24,6 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validation
     if (empty($student_id) || empty($meal_date) || empty($meal_type)) {
         $error = '❌ Please fill all required fields';
+    } else if (!in_array($meal_type, ['Breakfast', 'Lunch', 'Dinner'], true)) {
+        $error = '❌ Invalid meal type';
     } else {
         // Check if student exists
         $check_stmt = $conn->prepare("SELECT id FROM students WHERE id = ?");
@@ -35,14 +37,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             // Insert meal record
             $stmt = $conn->prepare("INSERT INTO meal_records (student_id, meal_date, meal_type, served, quantity, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("issiids", $student_id, $meal_date, $meal_type, $served, $quantity, $notes, $user_id);
+            $stmt->bind_param("issidsi", $student_id, $meal_date, $meal_type, $served, $quantity, $notes, $user_id);
 
             if ($stmt->execute()) {
                 $success = '✅ Meal record added successfully!';
-                $conn->query("INSERT INTO activity_logs (user_id, action, ip_address) VALUES ({$user_id}, 'Added Meal Record for Student ID: {$student_id}', '{$_SERVER['REMOTE_ADDR']}')");
+
+                $log = $conn->prepare("INSERT INTO activity_logs (user_id, action, ip_address) VALUES (?, ?, ?)");
+                if ($log) {
+                    $action = "Added Meal Record for Student ID: " . intval($student_id);
+                    $ip = $_SERVER['REMOTE_ADDR'];
+                    $log->bind_param('iss', $user_id, $action, $ip);
+                    $log->execute();
+                    $log->close();
+                }
                 header('refresh:2;url=list.php');
             } else {
-                $error = '❌ Error adding meal record: ' . $conn->error;
+                error_log('meals/add.php insert failed: ' . $stmt->error);
+                $error = '❌ Error adding meal record. Please try again.';
             }
             $stmt->close();
         }

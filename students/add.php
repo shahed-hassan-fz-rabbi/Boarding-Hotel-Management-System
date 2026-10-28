@@ -76,7 +76,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $student_id = $conn->insert_id;
                 
                 // Log activity
-                $conn->query("INSERT INTO activity_logs (user_id, action, ip_address) VALUES ({$user_id}, 'Added Student: {$student_code}', '{$_SERVER['REMOTE_ADDR']}')");
+                $log = $conn->prepare("INSERT INTO activity_logs (user_id, action, ip_address) VALUES (?, ?, ?)");
+                if ($log) {
+                    $action = "Added Student: " . $student_code;
+                    $ip = $_SERVER['REMOTE_ADDR'];
+                    $log->bind_param('iss', $user_id, $action, $ip);
+                    $log->execute();
+                    $log->close();
+                }
 
                 $success = '✅ Student added successfully!';
                 header('refresh:2;url=list.php');

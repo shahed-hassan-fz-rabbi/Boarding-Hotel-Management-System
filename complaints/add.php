@@ -27,6 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = '❌ Complaint title must be at least 5 characters';
     } else if (strlen($complaint_description) < 10) {
         $error = '❌ Complaint description must be at least 10 characters';
+    } else if (!in_array($priority, ['High', 'Medium', 'Low'], true)) {
+        $error = '❌ Invalid priority';
     } else {
         // Check if student exists
         $check_stmt = $conn->prepare("SELECT id FROM students WHERE id = ?");
@@ -43,10 +45,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($stmt->execute()) {
                 $complaint_id = $conn->insert_id;
                 $success = '✅ Complaint filed successfully! Complaint ID: #' . $complaint_id;
-                $conn->query("INSERT INTO activity_logs (user_id, action, ip_address) VALUES ({$user_id}, 'Filed Complaint ID: {$complaint_id}', '{$_SERVER['REMOTE_ADDR']}')");
+
+                $log = $conn->prepare("INSERT INTO activity_logs (user_id, action, ip_address) VALUES (?, ?, ?)");
+                if ($log) {
+                    $action = "Filed Complaint ID: " . $complaint_id;
+                    $ip = $_SERVER['REMOTE_ADDR'];
+                    $log->bind_param('iss', $user_id, $action, $ip);
+                    $log->execute();
+                    $log->close();
+                }
                 header('refresh:2;url=list.php');
             } else {
-                $error = '❌ Error filing complaint: ' . $conn->error;
+                error_log('complaints/add.php insert failed: ' . $stmt->error);
+                $error = '❌ Error filing complaint. Please try again.';
             }
             $stmt->close();
         }

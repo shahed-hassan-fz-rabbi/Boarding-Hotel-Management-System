@@ -24,8 +24,8 @@ if (isset($_GET['success']) && $_GET['success'] === 'updated') {
     $message = '✓ Notice successfully updated and published!';
 }
 
-/* Fetch Current Notice Data safely by ID */
-$notice_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+/* Fetch Current Notice Data safely by ID (form preserves ?id; POST id accepted as fallback) */
+$notice_id = isset($_GET['id']) ? intval($_GET['id']) : (isset($_POST['id']) ? intval($_POST['id']) : 0);
 $fetchSql = "SELECT title, description, publish_date, status FROM notices WHERE id = ? LIMIT 1";
 $stmt = $conn->prepare($fetchSql);
 $stmt->bind_param('i', $notice_id);

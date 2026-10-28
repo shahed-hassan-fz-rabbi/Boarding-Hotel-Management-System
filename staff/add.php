@@ -52,16 +52,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($checkRes->num_rows > 0) {
             $error = 'A staff entry already exists under this email address mapping.';
         } else {
-            /* Secure SQL Insertion Architecture */
-            $insertSql = "INSERT INTO staff (staff_code, full_name, designation, department, phone, email, joining_date, status) 
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            /* Secure SQL Insertion Architecture
+               (staff table stores first_name/last_name — split the full name) */
+            $nameParts = preg_split('/\s+/', $full_name, 2);
+            $first_name = array_shift($nameParts);
+            $last_name = trim(implode(' ', $nameParts)) ?: '-';
+
+            $insertSql = "INSERT INTO staff (staff_code, first_name, last_name, designation, department, phone, email, joining_date, status) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = $conn->prepare($insertSql);
             if ($stmt) {
-                $stmt->bind_param('ssssssss', $staff_code, $full_name, $designation, $department, $phone, $email, $joining_date, $status);
+                $stmt->bind_param('sssssssss', $staff_code, $first_name, $last_name, $designation, $department, $phone, $email, $joining_date, $status);
                 
                 if ($stmt->execute()) {
-                    $message = '✓ Staff member successfully registered inside human resource network!';
+                    $message = ' Staff member successfully registered inside human resource network!';
                     // Refresh next code sequence mapping parameters
                     $nextId++;
                     $staff_code = "STF" . date('Y') . str_pad($nextId, 4, '0', STR_PAD_LEFT);
@@ -75,30 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Add Staff - Boarding School</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); }
-        .input-field { border: 1px solid #e2e8f0; background: #f8fafc; padding: 0.75rem 1rem; border-radius: 12px; outline: none; transition: all 0.3s; color: #1e293b; width: 100%; font-size: 0.95rem; }
-        .input-field:focus { background: white; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        .form-label { display: block; margin-bottom: 0.5rem; color: #1e293b; font-weight: 600; font-size: 0.95rem; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
-        @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
-    </style>
-</head>
-<body>
-
 <div class="p-4 lg:p-8 max-w-[1000px] mx-auto">
     
     <!-- Academic Layout Header Components Area -->
     <div class="glass mb-6 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
         <div>
-            <h2 class="text-xl font-bold text-slate-800">🏛️ Comilla University</h2>
+            <h2 class="text-xl font-bold text-slate-800"><?php echo icon('building', 'w-4 h-4'); ?> Comilla University</h2>
             <p class="text-xs font-semibold text-indigo-600 tracking-wider uppercase">Department of Computer Science and Engineering</p>
         </div>
         <div class="bg-indigo-50 px-4 py-2 rounded-xl text-center md:text-right">
@@ -110,10 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Interface Controls Context -->
     <div class="glass rounded-2xl p-6 mb-6 flex justify-between items-center">
         <div>
-            <h2 class="text-3xl font-bold text-slate-800">➕ Add New Staff Record</h2>
+            <h2 class="text-3xl font-bold text-slate-800"><?php echo icon('plus', 'w-4 h-4'); ?> Add New Staff Record</h2>
             <p class="text-slate-600 mt-1">Register institutional professors, supervisors or management authorities</p>
         </div>
-        <a href="list.php" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-xl font-semibold hover:bg-slate-300 transition">← Back to List</a>
+        <a href="list.php" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-xl font-semibold hover:bg-slate-300 transition"><?php echo icon('arrow-left', 'w-4 h-4'); ?> Back to List</a>
     </div>
 
     <!-- Feedback Banner Components -->
@@ -183,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="mt-6">
             <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition">
-                💾 Execute Registration Data
+                <?php echo icon('save', 'w-4 h-4'); ?> Execute Registration Data
             </button>
         </div>
 
@@ -192,5 +179,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <?php require '../components/footer.php'; ?>
-</body>
-</html>

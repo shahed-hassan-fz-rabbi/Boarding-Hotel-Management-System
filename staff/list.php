@@ -14,10 +14,10 @@ $can_modify = ($user_role === 'Admin');
 
 $search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-/* Fetch Staff Records with Search Filter */
-$staffSql = "SELECT * FROM staff";
+/* Fetch Staff Records with Search Filter (full_name alias = first + last) */
+$staffSql = "SELECT *, CONCAT(first_name, ' ', last_name) AS full_name FROM staff";
 if (!empty($search_query)) {
-    $staffSql .= " WHERE full_name LIKE ? OR staff_code LIKE ? OR designation LIKE ? OR department LIKE ?";
+    $staffSql .= " WHERE CONCAT(first_name, ' ', last_name) LIKE ? OR staff_code LIKE ? OR designation LIKE ? OR department LIKE ?";
 }
 $staffSql .= " ORDER BY staff_code ASC";
 
@@ -32,33 +32,12 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Staff Management - Boarding School</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); }
-        .input-field { border: 1px solid #e2e8f0; background: #f8fafc; padding: 0.65rem 1rem; border-radius: 12px; outline: none; transition: all 0.3s; color: #1e293b; }
-        .input-field:focus { background: white; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th { padding: 1rem; background: #f1f5f9; text-align: left; font-weight: 600; color: #1e293b; border-bottom: 2px solid #e2e8f0; }
-        .data-table td { padding: 1rem; border-bottom: 1px solid #e2e8f0; color: #475569; }
-        .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
-        .badge-active { background: #dcfce7; color: #166534; }
-        .badge-inactive { background: #fee2e2; color: #991b1b; }
-    </style>
-</head>
-<body>
-
 <div class="p-4 lg:p-8 max-w-[1600px] mx-auto">
     
     <!-- Top University Banner Header Component -->
     <div class="glass mb-6 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
         <div>
-            <h2 class="text-xl font-bold text-slate-800">🏛️ Comilla University</h2>
+            <h2 class="text-xl font-bold text-slate-800"><?php echo icon('building', 'w-4 h-4'); ?> Comilla University</h2>
             <p class="text-xs font-semibold text-indigo-600 tracking-wider uppercase">Department of Computer Science and Engineering</p>
         </div>
         <div class="bg-indigo-50 px-4 py-2 rounded-xl text-center md:text-right">
@@ -70,13 +49,13 @@ $result = $stmt->get_result();
     <!-- Interface Header Area -->
     <div class="glass rounded-2xl p-6 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h2 class="text-3xl font-bold text-slate-800">👥 Staff & Human Resources</h2>
+            <h2 class="text-3xl font-bold text-slate-800"><?php echo icon('staff', 'w-4 h-4'); ?> Staff & Human Resources</h2>
             <p class="text-slate-600 mt-1">Manage institutional human resource registries and profiles</p>
         </div>
         <?php if ($can_modify): ?>
         <div>
             <a href="add.php" class="px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md hover:opacity-90 transition block text-center">
-                ➕ Add New Staff
+                <?php echo icon('plus', 'w-4 h-4'); ?> Add New Staff
             </a>
         </div>
         <?php endif; ?>
@@ -122,7 +101,7 @@ $result = $stmt->get_result();
                                 <td><?= htmlspecialchars($row['designation']) ?></td>
                                 <td><span class="text-xs px-2 py-1 rounded bg-indigo-50 text-indigo-700 font-medium"><?= htmlspecialchars($row['department']) ?></span></td>
                                 <td>
-                                    <div class="text-sm">📞 <?= htmlspecialchars($row['phone']) ?></div>
+                                    <div class="text-sm"><?php echo icon('phone', 'w-4 h-4'); ?> <?= htmlspecialchars($row['phone']) ?></div>
                                     <div class="text-xs text-slate-400"><?= htmlspecialchars($row['email']) ?></div>
                                 </td>
                                 <td><?= date('d M, Y', strtotime($row['joining_date'])) ?></td>
@@ -150,5 +129,3 @@ $result = $stmt->get_result();
 $stmt->close();
 require '../components/footer.php'; 
 ?>
-</body>
-</html>

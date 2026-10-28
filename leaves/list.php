@@ -79,391 +79,21 @@ $leaveTypesJSON = json_encode($leaveTypes, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HE
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Management - Hostel System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .glass {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s ease;
-        }
-
-        .glass:hover {
-            box-shadow: 0 25px 75px rgba(0, 0, 0, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .sidebar {
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .nav-link {
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .nav-link:hover {
-            background: rgba(102, 126, 234, 0.2);
-            transform: translateX(4px);
-        }
-
-        .nav-link.active {
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 1.5rem;
-            border-radius: 16px;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stat-label {
-            color: #64748b;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            font-weight: 500;
-        }
-
-        .input-field {
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            color: #1e293b;
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .input-field:focus {
-            outline: none;
-            background: white;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .btn-secondary:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-        }
-
-        .btn-approve {
-            background: #10b981;
-            color: white;
-            border: none;
-        }
-
-        .btn-approve:hover {
-            background: #059669;
-        }
-
-        .btn-reject {
-            background: #ef4444;
-            color: white;
-            border: none;
-        }
-
-        .btn-reject:hover {
-            background: #dc2626;
-        }
-
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 0.35rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .status-approved {
-            background: #dcfce7;
-            color: #166534;
-            padding: 0.35rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .status-rejected {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 0.35rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .status-cancelled {
-            background: #f3e8ff;
-            color: #6b21a8;
-            padding: 0.35rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            align-items: center;
-            justify-content: center;
-            overflow-y: auto;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 700px;
-            width: 90%;
-            margin: auto;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #1e293b;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .icon-svg {
-            width: 24px;
-            height: 24px;
-            stroke: currentColor;
-            stroke-width: 2;
-            fill: none;
-        }
-
-        .leave-row {
-            border-bottom: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-        }
-
-        .leave-row:hover {
-            background: #f8fafc;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 3rem;
-            color: #64748b;
-        }
-
-        .fade-in {
-            animation: fadeInUp 0.4s ease-out;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <div class="flex h-screen overflow-hidden">
+<div class="max-w-[1400px] mx-auto">
 
         <!-- Sidebar -->
-        <aside class="sidebar w-80 hidden lg:flex flex-col">
-            <div class="p-8 border-b border-slate-700">
-                <h1 class="text-3xl font-bold text-white">🏫 Hostel</h1>
-                <p class="text-slate-400 text-sm mt-2">Management System</p>
-            </div>
-
-            <nav class="flex-1 p-6 space-y-2 overflow-y-auto">
-                <a href="../index.php" class="nav-link px-4 py-3 text-slate-400 hover:text-white rounded-12px">
-                    <svg class="icon-svg" viewBox="0 0 24 24">
-                        <path d="M3 12l9-9 9 9M5 10v11a1 1 0 001 1h3v-5a1 1 0 011-1h4a1 1 0 011 1v5h3a1 1 0 001-1V10"></path>
-                    </svg>
-                    <span>Dashboard</span>
-                </a>
-                <a href="../students/list.php" class="nav-link px-4 py-3 text-slate-400 hover:text-white rounded-12px">
-                    <svg class="icon-svg" viewBox="0 0 24 24">
-                        <path d="M12 4.354a4 4 0 110 8.008 4 4 0 010-8.008M3 20.333V19a6 6 0 0112 0v1.333"></path>
-                    </svg>
-                    <span>Students</span>
-                </a>
-                <a href="../allocations/list.php" class="nav-link px-4 py-3 text-slate-400 hover:text-white rounded-12px">
-                    <svg class="icon-svg" viewBox="0 0 24 24">
-                        <path d="M20 13H4a1 1 0 00-1 1v6a1 1 0 001 1h16a1 1 0 001-1v-6a1 1 0 00-1-1z"></path>
-                    </svg>
-                    <span>Allocations</span>
-                </a>
-                <a href="../payments/list.php" class="nav-link px-4 py-3 text-slate-400 hover:text-white rounded-12px">
-                    <svg class="icon-svg" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
-                    </svg>
-                    <span>Payments</span>
-                </a>
-                <a href="../meals/list.php" class="nav-link px-4 py-3 text-slate-400 hover:text-white rounded-12px">
-                    <svg class="icon-svg" viewBox="0 0 24 24">
-                        <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
-                    </svg>
-                    <span>Meals</span>
-                </a>
-                <a href="../complaints/list.php" class="nav-link px-4 py-3 text-slate-400 hover:text-white rounded-12px">
-                    <svg class="icon-svg" viewBox="0 0 24 24">
-                        <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path>
-                    </svg>
-                    <span>Complaints</span>
-                </a>
-                <a href="list.php" class="nav-link active px-4 py-3 text-white rounded-12px">
-                    <svg class="icon-svg" viewBox="0 0 24 24">
-                        <path d="M19 4h-2V2h-2v2H9V2H7v2H5a3 3 0 00-3 3v14a3 3 0 003 3h14a3 3 0 003-3V7a3 3 0 00-3-3z"></path>
-                    </svg>
-                    <span>Leaves</span>
-                </a>
-            </nav>
-
-            <div class="p-6 border-t border-slate-700">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                        <?php echo strtoupper(substr($user_name, 0, 2)); ?>
-                    </div>
-                    <div>
-                        <p class="text-white font-600"><?php echo htmlspecialchars($user_name); ?></p>
-                        <p class="text-slate-400 text-sm"><?php echo htmlspecialchars($user_role); ?></p>
-                    </div>
-                </div>
-                <a href="../auth/logout.php" class="w-full py-2 px-4 bg-red-500/20 text-red-400 rounded-10px hover:bg-red-500/30 transition font-500 text-sm text-center block">
-                    Logout
-                </a>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <div class="flex-1 overflow-auto">
-            <div class="p-4 lg:p-8">
+<!-- Main Content -->
+        <div>
+            <div class="space-y-6">
 
                 <!-- Header -->
                 <div class="glass rounded-2xl p-6 mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center">
                     <div>
-                        <h2 class="text-3xl font-bold text-slate-800">📅 Leave Management</h2>
+                        <h2 class="text-3xl font-bold text-slate-800"><?php echo icon('calendar', 'w-4 h-4'); ?> Leave Management</h2>
                         <p class="text-slate-600 mt-2">Track and manage student leave applications</p>
                     </div>
                     <button id="applyLeaveBtn" class="btn-primary mt-4 lg:mt-0">
-                        ➕ Apply for Leave
+                        <?php echo icon('plus', 'w-4 h-4'); ?> Apply for Leave
                     </button>
                 </div>
 
@@ -475,15 +105,15 @@ $leaveTypesJSON = json_encode($leaveTypes, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HE
                     </div>
                     <div class="glass stat-card rounded-2xl">
                         <p class="stat-label">Pending</p>
-                        <h3 class="stat-number" style="color: #f59e0b;"><?php echo $pendingApplications; ?></h3>
+                        <h3 class="stat-number" style="color: var(--warning);"><?php echo $pendingApplications; ?></h3>
                     </div>
                     <div class="glass stat-card rounded-2xl">
                         <p class="stat-label">Approved</p>
-                        <h3 class="stat-number" style="color: #10b981;"><?php echo $approvedApplications; ?></h3>
+                        <h3 class="stat-number" style="color: var(--success);"><?php echo $approvedApplications; ?></h3>
                     </div>
                     <div class="glass stat-card rounded-2xl">
                         <p class="stat-label">Rejected</p>
-                        <h3 class="stat-number" style="color: #ef4444;"><?php echo $rejectedApplications; ?></h3>
+                        <h3 class="stat-number" style="color: var(--error);"><?php echo $rejectedApplications; ?></h3>
                     </div>
                 </div>
 
@@ -492,7 +122,7 @@ $leaveTypesJSON = json_encode($leaveTypes, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HE
                     <input
                         type="text"
                         id="searchInput"
-                        placeholder="🔍 Search by student name or code..."
+                        placeholder="Search by student name or code..."
                         class="input-field flex-1">
 
                     <select id="filterStatus" class="input-field">
@@ -533,7 +163,7 @@ $leaveTypesJSON = json_encode($leaveTypes, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HE
                     </table>
 
                     <div id="noResults" class="no-results hidden">
-                        <svg class="icon-svg mx-auto mb-4" viewBox="0 0 24 24" style="width: 64px; height: 64px; stroke: #cbd5e1;">
+                        <svg class="icon-svg mx-auto mb-4" viewBox="0 0 24 24" style="width: 64px; height: 64px; stroke: var(--border-strong);">
                             <circle cx="11" cy="11" r="8"></circle>
                             <path d="m21 21-4.35-4.35"></path>
                         </svg>
@@ -600,7 +230,7 @@ $leaveTypesJSON = json_encode($leaveTypes, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HE
                 <!-- Buttons -->
                 <div class="flex gap-3">
                     <button type="submit" class="btn-primary flex-1">
-                        ✓ Submit Application
+                        <?php echo icon('check', 'w-3.5 h-3.5'); ?> Submit Application
                     </button>
                     <button type="button" id="cancelBtn" class="btn-secondary flex-1">
                         Cancel
@@ -751,7 +381,7 @@ $leaveTypesJSON = json_encode($leaveTypes, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HE
                     <td class="px-6 py-4 text-slate-700">${appliedDate}</td>
                     <td class="px-6 py-4 text-center">
                         <button class="btn-primary btn-sm" onclick="viewLeave(${leave.id})">
-                            👁️ View
+                            <?php echo icon('eye', 'w-3.5 h-3.5'); ?> View
                         </button>
                     </td>
                 `;
@@ -846,10 +476,10 @@ $leaveTypesJSON = json_encode($leaveTypes, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HE
 
                         <div class="flex gap-3">
                             <button class="btn-approve flex-1 btn-sm" onclick="approveLeavev(${leave.id})">
-                                ✓ Approve
+                                <?php echo icon('check', 'w-3.5 h-3.5'); ?> Approve
                             </button>
                             <button class="btn-reject flex-1 btn-sm" onclick="rejectLeave(${leave.id})">
-                                ✗ Reject
+                                <?php echo icon('x', 'w-3.5 h-3.5'); ?> Reject
                             </button>
                         </div>
                     </div>
@@ -938,5 +568,3 @@ $leaveTypesJSON = json_encode($leaveTypes, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HE
 <?php
 require '../components/footer.php'; 
 ?>
-</body>
-</html>

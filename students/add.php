@@ -7,6 +7,7 @@
 
 require '../db.php';
 require '../includes/auth_check.php';
+require_once __DIR__ . '/../components/icon.php';
 
 requireRoles(['Admin','Teacher','Hostel Supervisor']);
 
@@ -32,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Validation
     if (empty($first_name) || empty($last_name) || empty($email) || empty($phone)) {
-        $error = '❌ Please fill all required fields';
+        $error = ' Please fill all required fields';
     } else {
         // Check if email exists
         $check_email = $conn->prepare("SELECT id FROM students WHERE email = ?");
@@ -40,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $check_email->execute();
         
         if ($check_email->get_result()->num_rows > 0) {
-            $error = '❌ Email already exists';
+            $error = ' Email already exists';
         } else {
             // Generate student code
             $student_code = 'STU' . date('Ymd') . mt_rand(1000, 9999);
@@ -57,13 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $errCode = (int)($_FILES['photo']['error'] ?? UPLOAD_ERR_NO_FILE);
 
                 if ($errCode !== UPLOAD_ERR_OK || !is_uploaded_file($tmpFile)) {
-                    $photoError = '❌ Photo upload failed. Please try again.';
+                    $photoError = ' Photo upload failed. Please try again.';
                 } else if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
-                    $photoError = '❌ Photo must be a JPG, PNG, WEBP or GIF image.';
+                    $photoError = ' Photo must be a JPG, PNG, WEBP or GIF image.';
                 } else if ((int)@filesize($tmpFile) > 2 * 1024 * 1024) {
-                    $photoError = '❌ Photo must be 2 MB or smaller.';
+                    $photoError = ' Photo must be 2 MB or smaller.';
                 } else if (@getimagesize($tmpFile) === false) {
-                    $photoError = '❌ The uploaded file is not a valid image.';
+                    $photoError = ' The uploaded file is not a valid image.';
                 } else {
                     $photoDir = __DIR__ . '/../uploads/students';
                     if (!is_dir($photoDir)) {
@@ -73,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     if (move_uploaded_file($tmpFile, $photoDir . '/' . $photoName)) {
                         $photo = 'uploads/students/' . $photoName;
                     } else {
-                        $photoError = '❌ Could not save the uploaded photo. Please try again.';
+                        $photoError = ' Could not save the uploaded photo. Please try again.';
                     }
                 }
             }
@@ -111,11 +112,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $log->close();
                 }
 
-                $success = '✅ Student added successfully!';
+                $success = ' Student added successfully!';
                 header('refresh:2;url=list.php');
             } else {
                 error_log('students/add.php insert failed: ' . $stmt->error);
-                $error = '❌ Error adding student. Please try again.';
+                $error = ' Error adding student. Please try again.';
             }
             $stmt->close();
             }
@@ -131,10 +132,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Student - Hostel Management</title>
+    <!-- Early theme resolution: runs before first paint to prevent FOUC -->
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('bhm-theme');
+            if (!t) t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/theme.css">
+    <script src="../assets/app.js" defer></script>
+    
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -146,22 +161,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .input-field {
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            background: rgba(102, 126, 234, 0.05);
+            border: 1px solid rgba(201, 79, 27, 0.3);
+            background: rgba(201, 79, 27, 0.05);
             padding: 0.75rem 1rem;
             border-radius: 12px;
-            color: #1e293b;
+            color: var(--text);
             font-size: 0.95rem;
         }
 
         .input-field:focus {
             outline: none;
-            background: rgba(102, 126, 234, 0.1);
-            border-color: #667eea;
+            background: rgba(201, 79, 27, 0.1);
+            border-color: var(--terracotta);
         }
 
         .btn-submit {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%);
             color: white;
             padding: 0.75rem 2rem;
             border-radius: 12px;
@@ -172,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .btn-submit:hover {
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 30px rgba(201, 79, 27, 0.4);
             transform: translateY(-2px);
         }
 
@@ -184,25 +199,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
+            background: var(--error-soft);
+            color: var(--error);
+            border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
         }
 
         .alert-success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #86efac;
+            background: var(--success-soft);
+            color: var(--success);
+            border: 1px solid color-mix(in srgb, var(--success) 40%, transparent);
         }
     </style>
 </head>
 <body>
+    <button type="button" class="theme-toggle theme-toggle--float" aria-label="Switch to dark theme" aria-pressed="false" title="Toggle theme">
+        <?php echo icon('sun', 'icon-sun w-[18px] h-[18px]'); ?>
+        <?php echo icon('moon', 'icon-moon w-[18px] h-[18px]'); ?>
+    </button>
 
 <div class="p-4 lg:p-8 max-w-4xl mx-auto">
 
     <!-- Header -->
     <div class="glass rounded-2xl p-6 mb-8">
-        <h1 class="text-3xl font-bold text-slate-800">➕ Add New Student</h1>
+        <h1 class="text-3xl font-bold text-slate-800"><?php echo icon('plus', 'w-4 h-4'); ?> Add New Student</h1>
         <p class="text-slate-600 mt-2">Fill in the form to add a new student to the system</p>
     </div>
 
@@ -219,7 +238,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?= csrf_field() ?>
 
         <!-- Personal Information -->
-        <h2 class="text-2xl font-bold text-slate-800 mb-6">📋 Personal Information</h2>
+        <h2 class="text-2xl font-bold text-slate-800 mb-6"><?php echo icon('file', 'w-4 h-4'); ?> Personal Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
                 <label class="block text-sm font-600 text-slate-700 mb-2">First Name *</label>
@@ -277,13 +296,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <!-- Photo Upload -->
         <div class="mb-8">
-            <label class="block text-sm font-600 text-slate-700 mb-2">📸 Student Photo</label>
+            <label class="block text-sm font-600 text-slate-700 mb-2"><?php echo icon('camera', 'w-4 h-4'); ?> Student Photo</label>
             <input type="file" name="photo" class="input-field w-full" accept="image/*">
             <p class="text-sm text-slate-500 mt-2">Accepted formats: JPG, PNG (Max 5MB)</p>
         </div>
 
         <!-- Guardian Information -->
-        <h2 class="text-2xl font-bold text-slate-800 mb-6">👨‍👩‍👧 Guardian Information</h2>
+        <h2 class="text-2xl font-bold text-slate-800 mb-6"><?php echo icon('user', 'w-4 h-4'); ?>‍<?php echo icon('user', 'w-4 h-4'); ?>‍<?php echo icon('user', 'w-4 h-4'); ?> Guardian Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
                 <label class="block text-sm font-600 text-slate-700 mb-2">Father's Name</label>
@@ -305,7 +324,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <!-- Buttons -->
         <div class="flex gap-4">
-            <button type="submit" class="btn-submit">✅ Add Student</button>
+            <button type="submit" class="btn-submit"><?php echo icon('check-circle', 'w-4 h-4'); ?> Add Student</button>
             <a href="list.php" class="px-6 py-3 bg-slate-400 text-white rounded-12px text-center font-600 hover:bg-slate-500 transition">Cancel</a>
         </div>
 

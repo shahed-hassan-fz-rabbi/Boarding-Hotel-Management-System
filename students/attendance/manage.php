@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * ==========================================
  * BOARDING SCHOOL MANAGEMENT SYSTEM
@@ -6,15 +6,15 @@
  * ==========================================
  */
 
-require_once '../includes/auth_check.php';
+require_once '../../includes/auth_check.php';
 
 // Only Admin and Teacher roles can manage attendance
 if (!in_array($user_role, ['Admin', 'Teacher'])) {
-    header('Location: ../index.php?error=Access denied');
+    header('Location: ' . BASE_URL . 'index.php?error=Access denied');
     exit();
 }
 
-require '../components/header.php';
+require '../../components/header.php';
 
 $message = '';
 $error = '';
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
         }
         $conn->commit();
-        $message = '✓ Attendance saved successfully for ' . date('d M, Y', strtotime($attendance_date));
+        $message = ' Attendance saved successfully for' . date('d M, Y', strtotime($attendance_date));
     } catch (Exception $e) {
         $conn->rollback();
         $error = 'Transaction Failed: ' . $e->getMessage();
@@ -76,25 +76,6 @@ $stmt->execute();
 $studentsResult = $stmt->get_result();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Daily Attendance - Boarding School</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); }
-        .input-field { border: 1px solid #e2e8f0; background: #f8fafc; padding: 0.5rem 1rem; border-radius: 10px; outline: none; transition: all 0.3s; }
-        .input-field:focus { background: white; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th { padding: 1rem; background: #f1f5f9; text-align: left; font-weight: 600; color: #1e293b; border-bottom: 2px solid #e2e8f0; }
-        .data-table td { padding: 1rem; border-bottom: 1px solid #e2e8f0; color: #475569; }
-        .radio-btn { width: 1.15rem; height: 1.15rem; cursor: pointer; accent-color: #667eea; }
-    </style>
-</head>
-<body>
-
 <div class="p-4 lg:p-8 max-w-[1400px] mx-auto">
     <!-- Top University Banner Header Component -->
     <div class="glass mb-6 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
@@ -111,7 +92,7 @@ $studentsResult = $stmt->get_result();
     <!-- Interface Header Area -->
     <div class="glass rounded-2xl p-6 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h2 class="text-3xl font-bold text-slate-800">📝 Roll Call & Attendance Sheets</h2>
+            <h2 class="text-3xl font-bold text-slate-800"><?php echo icon('attendance', 'w-4 h-4'); ?> Roll Call & Attendance Sheets</h2>
             <p class="text-slate-600 mt-1">Manage and track secure daily student records</p>
         </div>
         <div>
@@ -124,10 +105,10 @@ $studentsResult = $stmt->get_result();
 
     <!-- Alert Response Prompts -->
     <?php if ($message): ?>
-        <div class="bg-emerald-100 border border-emerald-300 text-emerald-800 p-4 rounded-xl mb-6 font-medium flex items-center gap-2"><span>✓</span> <?= $message ?></div>
+        <div class="bg-emerald-100 border border-emerald-300 text-emerald-800 p-4 rounded-xl mb-6 font-medium flex items-center gap-2"><span><?php echo icon('check', 'w-3.5 h-3.5'); ?></span> <?= $message ?></div>
     <?php endif; ?>
     <?php if ($error): ?>
-        <div class="bg-rose-100 border border-rose-300 text-rose-800 p-4 rounded-xl mb-6 font-medium flex items-center gap-2"><span>✗</span> <?= $error ?></div>
+        <div class="bg-rose-100 border border-rose-300 text-rose-800 p-4 rounded-xl mb-6 font-medium flex items-center gap-2"><span><?php echo icon('x', 'w-3.5 h-3.5'); ?></span> <?= $error ?></div>
     <?php endif; ?>
 
     <!-- Master Data Submissions Sheet -->
@@ -140,9 +121,9 @@ $studentsResult = $stmt->get_result();
                         <th>Student Code</th>
                         <th>Full Name</th>
                         <th>Gender</th>
-                        <th class="text-center">🟢 Present</th>
-                        <th class="text-center">🔴 Absent</th>
-                        <th class="text-center">🟡 Late</th>
+                        <th class="text-center"><span class="dot dot-green"></span> Present</th>
+                        <th class="text-center"><span class="dot dot-red"></span> Absent</th>
+                        <th class="text-center"><span class="dot dot-amber"></span> Late</th>
                         <th>Administrative Remarks</th>
                     </tr>
                 </thead>
@@ -184,7 +165,7 @@ $studentsResult = $stmt->get_result();
         <?php if ($studentsResult->num_rows > 0): ?>
             <div class="flex gap-3">
                 <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition">
-                    💾 Save Attendance Log
+                    <?php echo icon('save', 'w-4 h-4'); ?> Save Attendance Log
                 </button>
             </div>
         <?php endif; ?>
@@ -193,7 +174,5 @@ $studentsResult = $stmt->get_result();
 
 <?php 
 $stmt->close();
-require '../components/footer.php'; 
+require '../../components/footer.php'; 
 ?>
-</body>
-</html>

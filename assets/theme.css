@@ -405,8 +405,6 @@ textarea.input-field { resize: vertical; min-height: 96px; }
 [data-theme="dark"] .data-table tbody tr:hover { background: rgba(51, 41, 35, 0.55); }
 
 /* ----------------------------- Badges & status ----------------------------- */
-.badge, .status-badge, [class*="status-"], [class*="badge-"] { }
-
 .badge, .amount-badge {
     display: inline-flex; align-items: center; gap: 0.35rem;
     padding: 0.3rem 0.7rem;
@@ -429,13 +427,15 @@ textarea.input-field { resize: vertical; min-height: 96px; }
     display: inline-flex; align-items: center; gap: 0.35rem;
 }
 
-.status-active, .status-paid, .status-approved, .status-served, .status-resolved {
+.status-active, .status-paid, .status-approved, .status-served, .status-resolved,
+.status-open {
     background: var(--success-soft); color: var(--success);
     padding: 0.3rem 0.7rem; border-radius: 999px;
     font-size: 0.72rem; font-weight: 800;
 }
 
-.status-inactive, .status-partial, .status-pending, .status-notserved {
+.status-inactive, .status-partial, .status-pending, .status-notserved,
+.status-inprogress {
     background: var(--warning-soft); color: var(--warning);
     padding: 0.3rem 0.7rem; border-radius: 999px;
     font-size: 0.72rem; font-weight: 800;
@@ -452,6 +452,16 @@ textarea.input-field { resize: vertical; min-height: 96px; }
     padding: 0.26rem 0.55rem; border-radius: 8px;
     display: inline-block;
 }
+
+/* Complaint priority chips */
+.priority-high, .priority-medium, .priority-low {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.3rem 0.7rem; border-radius: 999px;
+    font-size: 0.72rem; font-weight: 800;
+}
+.priority-high   { background: var(--error-soft); color: var(--error); }
+.priority-medium { background: var(--warning-soft); color: var(--warning); }
+.priority-low    { background: var(--success-soft); color: var(--success); }
 
 .room-type-boys  { background: rgba(201, 79, 27, 0.12); color: var(--terracotta); }
 .room-type-girls { background: rgba(255, 135, 95, 0.14); color: #C05A33; }
@@ -638,6 +648,15 @@ p .icon-svg, h1 .icon-svg, h2 .icon-svg, h3 .icon-svg, h4 .icon-svg, span .icon-
 .badge-accountant { background: rgba(255, 135, 95, 0.12); color: #C05A33; }
 [data-theme="dark"] .badge-accountant { color: var(--coral); }
 
+.badge-active {
+    background: var(--success-soft); color: var(--success);
+    display: inline-flex; align-items: center; gap: 0.35rem;
+}
+.badge-inactive {
+    background: var(--warning-soft); color: var(--warning);
+    display: inline-flex; align-items: center; gap: 0.35rem;
+}
+
 .meal-type-breakfast { background: var(--warning-soft); color: var(--warning); }
 .meal-type-lunch     { background: rgba(201, 79, 27, 0.10); color: var(--terracotta); }
 .meal-type-dinner    { background: rgba(255, 135, 95, 0.12); color: #C05A33; }
@@ -654,6 +673,65 @@ p .icon-svg, h1 .icon-svg, h2 .icon-svg, h3 .icon-svg, h4 .icon-svg, span .icon-
 .dot-amber  { background: var(--warning); }
 .dot-red    { background: var(--error); }
 .dot-coral  { background: var(--coral); }
+
+/* Activity log rows (settings/logs.php) */
+.log-row { padding: 0.9rem 1.25rem; border-bottom: 1px solid var(--border); transition: background 0.15s ease; }
+.log-row:hover { background: var(--surface-2); }
+.log-time { font-size: 0.85rem; color: var(--text-2); }
+.log-action { font-weight: 600; color: var(--text); margin: 0.35rem 0; word-break: break-word; }
+.log-user { font-size: 0.9rem; color: var(--text-2); }
+
+.badge-info {
+    display: inline-block;
+    padding: 0.25rem 0.75rem; border-radius: 12px;
+    font-size: 0.75rem; font-weight: 700;
+    background: rgba(201, 79, 27, 0.10); color: var(--terracotta);
+}
+
+/* Pagination */
+.pagination { display: flex; gap: 0.5rem; margin-top: 2rem; justify-content: center; flex-wrap: wrap; }
+.pagination a, .pagination span {
+    padding: 0.5rem 0.75rem; border-radius: 10px;
+    border: 1px solid var(--border);
+    color: var(--terracotta); cursor: pointer;
+    font-size: 0.85rem; font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.pagination a:hover { background: var(--terracotta); color: #fff; }
+.pagination .active { background: var(--terracotta); color: #fff; border-color: var(--terracotta); }
+
+/* Toggle switch (settings page) */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px; height: 24px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+.toggle-switch .slider {
+    position: absolute; inset: 0;
+    background: var(--border-strong);
+    border-radius: 999px;
+    transition: background 0.2s ease;
+}
+
+.toggle-switch .slider::before {
+    content: "";
+    position: absolute;
+    left: 3px; top: 3px;
+    width: 18px; height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.toggle-switch input:checked + .slider { background: var(--terracotta); }
+.toggle-switch input:checked + .slider::before { transform: translateX(20px); }
+.toggle-switch input:focus-visible + .slider { outline: 2px solid var(--coral); outline-offset: 2px; }
 
 /* ============================================================================
    THEME REMAPPING OF EXISTING TAILWIND UTILITIES
@@ -855,3 +933,6 @@ p .icon-svg, h1 .icon-svg, h2 .icon-svg, h3 .icon-svg, h4 .icon-svg, span .icon-
     body { background: #fff !important; }
     .main-container { margin-left: 0 !important; }
 }
+
+/* Floating toggle for standalone pages (form pages without the app shell) */
+.theme-toggle--float { position: fixed; top: 1.1rem; right: 1.1rem; z-index: 60; box-shadow: var(--shadow-md); background: var(--surface); }

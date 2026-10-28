@@ -21,7 +21,7 @@ $error = '';
 
 // PRG Success/Error Notification Capture via Session or GET
 if (isset($_GET['success']) && $_GET['success'] === 'updated') {
-    $message = '✓ Notice successfully updated and published!';
+    $message = ' Notice successfully updated and published!';
 }
 
 /* Fetch Current Notice Data safely by ID (form preserves ?id; POST id accepted as fallback) */
@@ -113,19 +113,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <!-- Header Controls Grid Panel -->
     <div class="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
         <div>
-            <h2 class="text-2xl font-bold text-slate-800">📝 Edit Notice</h2>
+            <h2 class="text-2xl font-bold text-slate-800"><?php echo icon('attendance', 'w-4 h-4'); ?> Edit Notice</h2>
             <p class="text-sm text-slate-500 mt-0.5">Modify announcement text or safely archive expired circulars</p>
         </div>
         <div class="flex items-center gap-3 no-print">
-            <a href="list.php" class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition text-xs">← Back to List</a>
+            <a href="list.php" class="px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition text-xs"><?php echo icon('arrow-left', 'w-4 h-4'); ?> Back to List</a>
             
             <!-- FIXED: Secure POST Method Form for Deletion instead of GET injection -->
-            <form method="POST" action="" onsubmit="return confirm('🚨 Archive this notice? It will be removed from the active ticker stream.')" class="inline">
+            <form method="POST" action="" onsubmit="return confirm(' Archive this notice? It will be removed from the active ticker stream.')" class="inline">
                 <?= csrf_field() ?>
                 <input type="hidden" name="id" value="<?= $notice_id ?>">
                 <input type="hidden" name="action" value="secure_delete">
                 <button type="submit" class="px-4 py-2.5 bg-rose-50 text-rose-600 rounded-xl font-semibold hover:bg-rose-100 transition text-xs">
-                    🗑️ Archive Notice
+                    <?php echo icon('trash', 'w-3.5 h-3.5'); ?> Archive Notice
                 </button>
             </form>
         </div>
@@ -170,9 +170,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
         <div class="pt-4 border-t border-slate-100 flex justify-between items-center">
             <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md hover:opacity-90 transition text-xs">
-                💾 Update Notice
+                <?php echo icon('save', 'w-4 h-4'); ?> Update Notice
             </button>
-            <span class="text-[11px] text-slate-400 font-medium italic">ℹ️ Updates automatically refresh the global marquee stream ticker.</span>
+            <span class="text-[11px] text-slate-400 font-medium italic">ℹ Updates automatically refresh the global marquee stream ticker.</span>
         </div>
     </form>
 </div>

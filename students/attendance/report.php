@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * ==========================================
  * BOARDING SCHOOL MANAGEMENT SYSTEM
@@ -6,15 +6,15 @@
  * ==========================================
  */
 
-require_once '../includes/auth_check.php';
+require_once '../../includes/auth_check.php';
 
 // Role Guard
 if (!in_array($user_role, ['Admin', 'Teacher', 'Hostel Supervisor'])) {
-    header('Location: ../index.php?error=Access denied');
+    header('Location: ' . BASE_URL . 'index.php?error=Access denied');
     exit();
 }
 
-require '../components/header.php';
+require '../../components/header.php';
 
 // Filters Mapping
 $selected_month = isset($_GET['month']) ? intval($_GET['month']) : intval(date('m'));
@@ -104,43 +104,18 @@ $reportResult = $stmt->get_result();
 $stmt->close();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Attendance Analytics - Boarding School</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <style>
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); }
-        .input-field { border: 1px solid #e2e8f0; background: #f8fafc; padding: 0.5rem 1rem; border-radius: 10px; outline: none; transition: all 0.3s; color: #1e293b; font-weight: 500; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th { padding: 1rem; background: #f1f5f9; text-align: left; font-weight: 600; color: #1e293b; border-bottom: 2px solid #e2e8f0; }
-        .data-table td { padding: 1rem; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 0.95rem; }
-        .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
-        @media print {
-            body { background: white !important; }
-            .no-print, aside, .mobile-header { display: none !important; }
-            .main-container { margin-left: 0 !important; padding: 0 !important; width: 100% !important; }
-            .glass { box-shadow: none !important; border: none !important; background: white !important; }
-        }
-    </style>
-</head>
-<body>
-
 <div class="p-4 lg:p-8 max-w-[1600px] mx-auto">
     
     <!-- Professional Title Module Header Area -->
     <div class="glass rounded-2xl p-6 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h2 class="text-3xl font-bold text-slate-800">📊 Attendance Analytics</h2>
+            <h2 class="text-3xl font-bold text-slate-800"><?php echo icon('dashboard', 'w-4 h-4'); ?> Attendance Analytics</h2>
             <p class="text-slate-600 mt-1">Monthly Attendance Report & Aggregated Statistical Chart Matrix</p>
         </div>
         <div class="flex gap-2 no-print">
-            <button onclick="window.print()" class="px-4 py-2 bg-slate-800 text-white rounded-xl font-semibold hover:bg-slate-700 transition">🖨️ Print</button>
+            <button onclick="window.print()" class="px-4 py-2 bg-slate-800 text-white rounded-xl font-semibold hover:bg-slate-700 transition"><?php echo icon('print', 'w-4 h-4'); ?> Print</button>
             <?php if (in_array($user_role, ['Admin', 'Teacher', 'Hostel Supervisor'])): ?>
-                <button onclick="exportCSV()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-500 transition">📥 Export CSV</button>
+                <button onclick="exportCSV()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-500 transition"><?php echo icon('download', 'w-4 h-4'); ?> Export CSV</button>
             <?php endif; ?>
         </div>
     </div>
@@ -211,7 +186,7 @@ $stmt->close();
         <!-- Live Table and Chart.js Display Area -->
         <div class="glass rounded-2xl p-6 lg:col-span-3 overflow-hidden">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                <h3 class="text-lg font-bold text-slate-800">📋 Student Attendance Roll Records</h3>
+                <h3 class="text-lg font-bold text-slate-800"><?php echo icon('file', 'w-4 h-4'); ?> Student Attendance Roll Records</h3>
                 <div class="w-full sm:w-44 h-32 no-print"><canvas id="monthDistributionChart"></canvas></div>
             </div>
             
@@ -239,7 +214,7 @@ $stmt->close();
                                         <div class="text-xs text-slate-400 font-mono flex items-center gap-2">
                                             <span><?= $r['student_code'] ?></span>
                                             <span>|</span>
-                                            <a href="tel:<?= $r['phone'] ?>" class="text-indigo-600 hover:underline">📞 <?= htmlspecialchars($r['phone']) ?></a>
+                                            <a href="tel:<?= $r['phone'] ?>" class="text-indigo-600 hover:underline"><?php echo icon('phone', 'w-4 h-4'); ?> <?= htmlspecialchars($r['phone']) ?></a>
                                         </div>
                                     </td>
                                     <td><span class="text-xs px-2 py-1 rounded bg-slate-100 font-medium"><?= $r['gender'] ?></span></td>
@@ -273,8 +248,8 @@ $stmt->close();
 
         <!-- 3 Day Absent Tracker Sidebar Alert Map Component -->
         <div class="glass rounded-2xl p-6 overflow-hidden h-fit">
-            <h3 class="text-md font-bold text-red-700 flex items-center gap-2">🚨 Critical High-Alert Tracker</h3>
-            <p class="text-xs text-slate-500 mt-1 mb-4">Lists active students recorded <strong>Absent ≥ 3 Times</strong> during filter month.</p>
+            <h3 class="text-md font-bold text-red-700 flex items-center gap-2"><?php echo icon('alert', 'w-4 h-4'); ?> Critical High-Alert Tracker</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-4">Lists active students recorded <strong>Absent â‰¥ 3 Times</strong> during filter month.</p>
             
             <div class="space-y-3">
                 <?php if ($absenteeResult->num_rows > 0): ?>
@@ -282,7 +257,7 @@ $stmt->close();
                         <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex justify-between items-center transition hover:scale-[1.02]">
                             <div>
                                 <h4 class="text-sm font-bold text-slate-800"><?= htmlspecialchars($a['first_name'] . ' ' . $a['last_name']) ?></h4>
-                                <a href="tel:<?= $a['phone'] ?>" class="text-[11px] text-slate-500 font-mono block mt-0.5 hover:underline">📱 Call Guardian</a>
+                                <a href="tel:<?= $a['phone'] ?>" class="text-[11px] text-slate-500 font-mono block mt-0.5 hover:underline"><?php echo icon('phone', 'w-4 h-4'); ?> Call Guardian</a>
                             </div>
                             <span class="bg-rose-600 text-white text-[11px] font-extrabold px-2.5 py-1.5 rounded-lg">
                                 <?= $a['total_absences'] ?> Days Absent
@@ -291,7 +266,7 @@ $stmt->close();
                     <?php endwhile; ?>
                 <?php else: ?>
                     <div class="text-center py-6 text-slate-400 font-medium bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-800 text-xs p-3">
-                        ✨ Operational Stability Secure!<br><span class="font-normal opacity-80">No active students skipped ≥ 3 days this month.</span>
+                         Operational Stability Secure!<br><span class="font-normal opacity-80">No active students skipped â‰¥ 3 days this month.</span>
                     </div>
                 <?php endif; ?>
             </div>
@@ -309,7 +284,7 @@ $stmt->close();
             labels: ['Present', 'Absent', 'Late'],
             datasets: [{
                 data: [<?= $cards['total_p'] ?>, <?= $cards['total_a'] ?>, <?= $cards['total_l'] ?>],
-                backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                backgroundColor: ['var(--success)', 'var(--error)', 'var(--warning)'],
                 borderWidth: 1
             }]
         },
@@ -345,6 +320,4 @@ $stmt->close();
     }
 </script>
 
-<?php require '../components/footer.php'; ?>
-</body>
-</html>
+<?php require '../../components/footer.php'; ?>

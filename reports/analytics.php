@@ -116,71 +116,20 @@ $complaintJSON = json_encode($complaintData);
 $leaveJSON = json_encode($leaveData);
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports & Analytics - Boarding School</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-        }
-        .stat-card {
-            text-align: center;
-            padding: 1.5rem;
-            border-radius: 16px;
-            transition: transform 0.3s ease;
-        }
-        .stat-card:hover { transform: translateY(-4px); }
-        .stat-number {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .stat-label { color: #64748b; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .chart-container { position: relative; height: 260px; width: 100%; }
-        .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th { padding: 0.75rem 1rem; background: #f1f5f9; text-align: left; font-weight: 600; color: #1e293b; }
-        .data-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #e2e8f0; color: #475569; font-size: 0.9rem; }
-        .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
-        
-        @media print {
-            body { background: white !important; color: black; }
-            .no-print, aside, .mobile-header { display: none !important; }
-            .main-container { margin-left: 0 !important; padding: 0 !important; }
-            .glass { box-shadow: none !important; border: none !important; background: white !important; }
-        }
-    </style>
-</head>
-<body>
-
 <div class="p-4 lg:p-8 max-w-[1600px] mx-auto">
     
     <!-- Title and Toolbar -->
     <div class="glass rounded-2xl p-6 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h2 class="text-3xl font-bold text-slate-800">📊 Production Reports & Analytics</h2>
+            <h2 class="text-3xl font-bold text-slate-800"><?php echo icon('dashboard', 'w-4 h-4'); ?> Production Reports & Analytics</h2>
             <p class="text-slate-600 mt-1">Real-time data synchronization with active hostel database</p>
         </div>
         <div class="flex gap-3 no-print">
             <button onclick="window.print()" class="px-4 py-2 bg-slate-800 text-white rounded-xl font-semibold hover:bg-slate-700 transition flex items-center gap-2 shadow-lg shadow-slate-800/20">
-                🖨️ Print Report
+                <?php echo icon('print', 'w-4 h-4'); ?> Print Report
             </button>
             <button onclick="exportCSV()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-500 transition flex items-center gap-2 shadow-lg shadow-emerald-600/20">
-                📥 Export CSV
+                <?php echo icon('download', 'w-4 h-4'); ?> Export CSV
             </button>
         </div>
     </div>
@@ -188,36 +137,36 @@ $leaveJSON = json_encode($leaveData);
     <!-- 8 Main Core Dashboard Cards -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div class="glass stat-card">
-            <p class="stat-label">👨 Total Students</p>
+            <p class="stat-label"><?php echo icon('user', 'w-4 h-4'); ?> Total Students</p>
             <h3 class="stat-number mt-2"><?= $stats['total_students'] ?? 0; ?></h3>
         </div>
         <div class="glass stat-card">
-            <p class="stat-label">🏠 Total Rooms</p>
-            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); -webkit-background-clip: text;"><?= $stats['total_rooms'] ?? 0; ?></h3>
+            <p class="stat-label"><?php echo icon('dashboard', 'w-4 h-4'); ?> Total Rooms</p>
+            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, var(--terracotta), var(--terracotta-dark)); -webkit-background-clip: text;"><?= $stats['total_rooms'] ?? 0; ?></h3>
         </div>
         <div class="glass stat-card">
-            <p class="stat-label">🛏️ Total Beds</p>
-            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, #ec4899, #be185d); -webkit-background-clip: text;"><?= $stats['total_beds'] ?? 0; ?></h3>
+            <p class="stat-label"> Total Beds</p>
+            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, var(--coral), var(--coral)); -webkit-background-clip: text;"><?= $stats['total_beds'] ?? 0; ?></h3>
         </div>
         <div class="glass stat-card">
-            <p class="stat-label">✅ Occupied Beds</p>
-            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, #10b981, #047857); -webkit-background-clip: text;"><?= $stats['occupied_beds'] ?? 0; ?></h3>
+            <p class="stat-label"><?php echo icon('check-circle', 'w-4 h-4'); ?> Occupied Beds</p>
+            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, var(--success), var(--success)); -webkit-background-clip: text;"><?= $stats['occupied_beds'] ?? 0; ?></h3>
         </div>
         <div class="glass stat-card">
-            <p class="stat-label">💰 Total Collection</p>
-            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, #059669, #064e3b); -webkit-background-clip: text;">৳<?= number_format($stats['total_collection'] ?? 0, 0); ?></h3>
+            <p class="stat-label"><?php echo icon('payments', 'w-4 h-4'); ?> Total Collection</p>
+            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, var(--success), var(--success)); -webkit-background-clip: text;">৳<?= number_format($stats['total_collection'] ?? 0, 0); ?></h3>
         </div>
         <div class="glass stat-card">
-            <p class="stat-label">💸 Total Due</p>
-            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, #ef4444, #b91c1c); -webkit-background-clip: text;">৳<?= number_format($stats['total_due'] ?? 0, 0); ?></h3>
+            <p class="stat-label"><?php echo icon('payments', 'w-4 h-4'); ?> Total Due</p>
+            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, var(--error), var(--error)); -webkit-background-clip: text;">৳<?= number_format($stats['total_due'] ?? 0, 0); ?></h3>
         </div>
         <div class="glass stat-card">
-            <p class="stat-label">🍛 Meals Served Today</p>
-            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, #f59e0b, #d97706); -webkit-background-clip: text;"><?= $stats['meals_today'] ?? 0; ?></h3>
+            <p class="stat-label"><?php echo icon('meals', 'w-4 h-4'); ?> Meals Served Today</p>
+            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, var(--warning), var(--warning)); -webkit-background-clip: text;"><?= $stats['meals_today'] ?? 0; ?></h3>
         </div>
         <div class="glass stat-card">
-            <p class="stat-label">⚠️ Open Complaints</p>
-            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, #7c3aed, #5b21b6); -webkit-background-clip: text;"><?= $stats['pending_complaints'] ?? 0; ?></h3>
+            <p class="stat-label"><?php echo icon('complaints', 'w-4 h-4'); ?> Open Complaints</p>
+            <h3 class="stat-number mt-2" style="background: linear-gradient(135deg, var(--terracotta-dark), var(--coral)); -webkit-background-clip: text;"><?= $stats['pending_complaints'] ?? 0; ?></h3>
         </div>
     </div>
 
@@ -250,7 +199,7 @@ $leaveJSON = json_encode($leaveData);
         
         <!-- Recent Payments -->
         <div class="glass rounded-2xl p-5 overflow-hidden">
-            <h4 class="text-md font-bold text-slate-700 mb-3">💰 Recent Payments Feed</h4>
+            <h4 class="text-md font-bold text-slate-700 mb-3"><?php echo icon('payments', 'w-4 h-4'); ?> Recent Payments Feed</h4>
             <div class="overflow-x-auto">
                 <table class="data-table">
                     <thead>
@@ -280,7 +229,7 @@ $leaveJSON = json_encode($leaveData);
 
         <!-- Recent Leave Applications -->
         <div class="glass rounded-2xl p-5 overflow-hidden">
-            <h4 class="text-md font-bold text-slate-700 mb-3">🏖️ Active Leave Pipeline</h4>
+            <h4 class="text-md font-bold text-slate-700 mb-3"><?php echo icon('leaves', 'w-4 h-4'); ?> Active Leave Pipeline</h4>
             <div class="overflow-x-auto">
                 <table class="data-table">
                     <thead>
@@ -310,7 +259,7 @@ $leaveJSON = json_encode($leaveData);
 
         <!-- Recent Urgent Complaints -->
         <div class="glass rounded-2xl p-5 overflow-hidden">
-            <h4 class="text-md font-bold text-slate-700 mb-3">⚠️ Critical Student Complaints</h4>
+            <h4 class="text-md font-bold text-slate-700 mb-3"><?php echo icon('complaints', 'w-4 h-4'); ?> Critical Student Complaints</h4>
             <div class="overflow-x-auto">
                 <table class="data-table">
                     <thead>
@@ -340,7 +289,7 @@ $leaveJSON = json_encode($leaveData);
 
         <!-- System Activity Logs -->
         <div class="glass rounded-2xl p-5 overflow-hidden">
-            <h4 class="text-md font-bold text-slate-700 mb-3">🛡️ Security Logs & Operations</h4>
+            <h4 class="text-md font-bold text-slate-700 mb-3"><?php echo icon('usermgmt', 'w-4 h-4'); ?> Security Logs & Operations</h4>
             <div class="overflow-x-auto">
                 <table class="data-table">
                     <thead>
@@ -384,7 +333,7 @@ $leaveJSON = json_encode($leaveData);
         type: 'pie',
         data: {
             labels: genderRaw.map(d => d.gender),
-            datasets: [{ data: genderRaw.map(d => d.count), backgroundColor: ['#3b82f6', '#ec4899'] }]
+            datasets: [{ data: genderRaw.map(d => d.count), backgroundColor: ['var(--terracotta)', 'var(--coral)'] }]
         },
         options: chartConfig
     });
@@ -395,8 +344,8 @@ $leaveJSON = json_encode($leaveData);
         data: {
             labels: occupancyRaw.map(d => d.room_type + ' Rooms'),
             datasets: [
-                { label: 'Occupied Beds', data: occupancyRaw.map(d => d.occupied_beds), backgroundColor: '#6366f1' },
-                { label: 'Available Structural Capacity', data: occupancyRaw.map(d => d.total_beds - d.occupied_beds), backgroundColor: '#10b981' }
+                { label: 'Occupied Beds', data: occupancyRaw.map(d => d.occupied_beds), backgroundColor: 'var(--coral)' },
+                { label: 'Available Structural Capacity', data: occupancyRaw.map(d => d.total_beds - d.occupied_beds), backgroundColor: 'var(--success)' }
             ]
         },
         options: { ...chartConfig, scales: { x: { stacked: true }, y: { stacked: true } } }
@@ -409,8 +358,8 @@ $leaveJSON = json_encode($leaveData);
         data: {
             labels: paymentRaw.map(d => mNames[d.month]),
             datasets: [
-                { label: 'Total Collections', data: paymentRaw.map(d => d.total_paid), borderColor: '#10b981', tension: 0.2, fill: false },
-                { label: 'Outstanding Dues', data: paymentRaw.map(d => d.total_due), borderColor: '#ef4444', tension: 0.2, fill: false }
+                { label: 'Total Collections', data: paymentRaw.map(d => d.total_paid), borderColor: 'var(--success)', tension: 0.2, fill: false },
+                { label: 'Outstanding Dues', data: paymentRaw.map(d => d.total_due), borderColor: 'var(--error)', tension: 0.2, fill: false }
             ]
         },
         options: chartConfig
@@ -421,7 +370,7 @@ $leaveJSON = json_encode($leaveData);
         type: 'doughnut',
         data: {
             labels: complaintRaw.map(d => d.status),
-            datasets: [{ data: complaintRaw.map(d => d.count), backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444'] }]
+            datasets: [{ data: complaintRaw.map(d => d.count), backgroundColor: ['var(--warning)', 'var(--terracotta)', 'var(--success)', 'var(--error)'] }]
         },
         options: chartConfig
     });
@@ -432,9 +381,9 @@ $leaveJSON = json_encode($leaveData);
         data: {
             labels: leaveRaw.map(d => d.leave_type_name),
             datasets: [
-                { label: 'Approved Logs', data: leaveRaw.map(d => d.approved), backgroundColor: '#10b981' },
-                { label: 'Pending Processing', data: leaveRaw.map(d => d.pending), backgroundColor: '#f59e0b' },
-                { label: 'Rejected Applications', data: leaveRaw.map(d => d.rejected), backgroundColor: '#ef4444' }
+                { label: 'Approved Logs', data: leaveRaw.map(d => d.approved), backgroundColor: 'var(--success)' },
+                { label: 'Pending Processing', data: leaveRaw.map(d => d.pending), backgroundColor: 'var(--warning)' },
+                { label: 'Rejected Applications', data: leaveRaw.map(d => d.rejected), backgroundColor: 'var(--error)' }
             ]
         },
         options: chartConfig
@@ -462,5 +411,3 @@ $leaveJSON = json_encode($leaveData);
 <?php 
 require '../components/footer.php'; 
 ?>
-</body>
-</html>

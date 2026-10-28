@@ -37,24 +37,24 @@ $result = $stmt->get_result();
 ?>
 
 <style>
-        .glass { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(8px); border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); }
-        .input-field { border: 1px solid #e2e8f0; background: #f8fafc; padding: 0.65rem 1rem; border-radius: 12px; outline: none; transition: all 0.3s; color: #1e293b; }
-        .input-field:focus { background: white; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .glass { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(8px); border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); }
+        .input-field { border: 1px solid var(--border); background: var(--surface-2); padding: 0.65rem 1rem; border-radius: 12px; outline: none; transition: all 0.3s; color: var(--text); }
+        .input-field:focus { background: white; border-color: var(--terracotta); box-shadow: 0 0 0 3px rgba(201, 79, 27, 0.1); }
         .data-table { width: 100%; border-collapse: collapse; }
-        .data-table th { padding: 1rem; background: #f1f5f9; text-align: left; font-weight: 600; color: #1e293b; border-bottom: 2px solid #e2e8f0; }
-        .data-table td { padding: 1rem; border-bottom: 1px solid #e2e8f0; color: #475569; }
+        .data-table th { padding: 1rem; background: var(--surface-2); text-align: left; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
+        .data-table td { padding: 1rem; border-bottom: 1px solid var(--border); color: var(--text-2); }
         .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
-        .badge-admin { background: #fee2e2; color: #991b1b; }
-        .badge-teacher { background: #dbeafe; color: #1e40af; }
-        .badge-supervisor { background: #fef3c7; color: #92400e; }
-        .badge-accountant { background: #dcfce7; color: #166534; }
+        .badge-admin { background: var(--error-soft); color: var(--error); }
+        .badge-teacher { background: rgba(201, 79, 27, 0.10); color: var(--terracotta-dark); }
+        .badge-supervisor { background: var(--warning-soft); color: var(--warning); }
+        .badge-accountant { background: var(--success-soft); color: var(--success); }
     </style>
 <div class="p-4 lg:p-8 max-w-[1600px] mx-auto">
     
     <!-- Top University Banner Header Component -->
     <div class="glass mb-6 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
         <div>
-            <h2 class="text-xl font-bold text-slate-800">🏛️ Comilla University</h2>
+            <h2 class="text-xl font-bold text-slate-800"><?php echo icon('building', 'w-4 h-4'); ?> Comilla University</h2>
             <p class="text-xs font-semibold text-indigo-600 tracking-wider uppercase">Department of Computer Science and Engineering</p>
         </div>
         <div class="bg-indigo-50 px-4 py-2 rounded-xl text-center md:text-right">
@@ -66,12 +66,12 @@ $result = $stmt->get_result();
     <!-- Interface Header Area -->
     <div class="glass rounded-2xl p-6 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h2 class="text-3xl font-bold text-slate-800">🔐 User Control Panel (RBAC)</h2>
+            <h2 class="text-3xl font-bold text-slate-800"><?php echo icon('usermgmt', 'w-4 h-4'); ?> User Control Panel (RBAC)</h2>
             <p class="text-slate-600 mt-1">Provision login credentials and restrict role-based view parameters</p>
         </div>
         <div>
             <a href="add.php" class="px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md hover:opacity-90 transition block text-center">
-                ➕ Provision New Account
+                <?php echo icon('plus', 'w-4 h-4'); ?> Provision New Account
             </a>
         </div>
     </div>

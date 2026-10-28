@@ -83,10 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <!-- Navigation Breadcrumb & Header Title -->
     <div class="bg-white border border-slate-200 rounded-2xl p-6 flex justify-between items-center shadow-sm">
         <div>
-            <h2 class="text-2xl font-bold text-slate-800">➕ Provision User Account</h2>
+            <h2 class="text-2xl font-bold text-slate-800"><?php echo icon('plus', 'w-4 h-4'); ?> Provision User Account</h2>
             <p class="text-sm text-slate-500 mt-0.5">Configure system credentials and cryptographically hash initial passwords</p>
         </div>
-        <a href="list.php" class="px-4 py-2 bg-slate-100 text-slate-800 rounded-xl font-semibold hover:bg-slate-200 transition text-xs flex items-center no-print">← Back to Users</a>
+        <a href="list.php" class="px-4 py-2 bg-slate-100 text-slate-800 rounded-xl font-semibold hover:bg-slate-200 transition text-xs flex items-center no-print"><?php echo icon('arrow-left', 'w-4 h-4'); ?> Back to Users</a>
     </div>
 
     <!-- Alert Status Box Prompts -->
@@ -135,13 +135,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 </select>
             </div>
             <div class="flex items-end text-slate-400 text-xs font-medium pb-3 italic">
-                ℹ️ Passwords are encrypted instantly using secure industry-standard Bcrypt schemas.
+                ℹ Passwords are encrypted instantly using secure industry-standard Bcrypt schemas.
             </div>
         </div>
 
         <div class="pt-4 border-t border-slate-100">
             <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md hover:opacity-90 transition text-xs">
-                💾 Generate System Credentials
+                <?php echo icon('save', 'w-4 h-4'); ?> Generate System Credentials
             </button>
         </div>
     </form>

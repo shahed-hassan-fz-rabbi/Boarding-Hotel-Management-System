@@ -221,8 +221,8 @@ if ($tickerResult && $tickerResult->num_rows > 0) {
                         <span><?= icon('chevron-right', 'w-3 h-3') ?></span>
                         <span class="uppercase tracking-wider"><?= $current_dir ?></span>
                         <span><?= icon('chevron-right', 'w-3 h-3') ?></span>
+                        <span class="font-bold" style="color: var(--text);"><?= $page_title_display ?></span>
                     <?php endif; ?>
-                    <span class="font-bold" style="color: var(--text);"><?= $page_title_display ?></span>
                 </div>
             </div>
 

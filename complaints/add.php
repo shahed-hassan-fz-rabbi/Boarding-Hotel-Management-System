@@ -7,6 +7,7 @@
 
 require '../db.php';
 require '../includes/auth_check.php';
+require_once __DIR__ . '/../components/icon.php';
 
 requireRoles(['Admin','Hostel Supervisor']);
 
@@ -22,13 +23,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Validation
     if (empty($student_id) || empty($complaint_title) || empty($complaint_description) || empty($category)) {
-        $error = '❌ Please fill all required fields';
+        $error = ' Please fill all required fields';
     } else if (strlen($complaint_title) < 5) {
-        $error = '❌ Complaint title must be at least 5 characters';
+        $error = ' Complaint title must be at least 5 characters';
     } else if (strlen($complaint_description) < 10) {
-        $error = '❌ Complaint description must be at least 10 characters';
+        $error = ' Complaint description must be at least 10 characters';
     } else if (!in_array($priority, ['High', 'Medium', 'Low'], true)) {
-        $error = '❌ Invalid priority';
+        $error = ' Invalid priority';
     } else {
         // Check if student exists
         $check_stmt = $conn->prepare("SELECT id FROM students WHERE id = ?");
@@ -36,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $check_stmt->execute();
         
         if ($check_stmt->get_result()->num_rows === 0) {
-            $error = '❌ Student not found';
+            $error = ' Student not found';
         } else {
             // Insert complaint
             $stmt = $conn->prepare("INSERT INTO complaints (student_id, complaint_title, complaint_description, category, priority, status) VALUES (?, ?, ?, ?, ?, 'Open')");
@@ -44,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             if ($stmt->execute()) {
                 $complaint_id = $conn->insert_id;
-                $success = '✅ Complaint filed successfully! Complaint ID: #' . $complaint_id;
+                $success = ' Complaint filed successfully! Complaint ID: #' . $complaint_id;
 
                 $log = $conn->prepare("INSERT INTO activity_logs (user_id, action, ip_address) VALUES (?, ?, ?)");
                 if ($log) {
@@ -57,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 header('refresh:2;url=list.php');
             } else {
                 error_log('complaints/add.php insert failed: ' . $stmt->error);
-                $error = '❌ Error filing complaint. Please try again.';
+                $error = ' Error filing complaint. Please try again.';
             }
             $stmt->close();
         }
@@ -76,14 +77,14 @@ if ($students_result) {
 
 // Complaint categories
 $categories = array(
-    'Maintenance' => '🔧 Maintenance',
-    'Food Quality' => '🍲 Food Quality',
-    'Cleanliness' => '🧹 Cleanliness',
-    'Noise' => '🔊 Noise/Disturbance',
-    'Behavioral' => '👥 Behavioral Issue',
-    'Security' => '🔐 Security Concern',
-    'Water/Power' => '💧 Water/Power Issue',
-    'Other' => '📋 Other'
+    'Maintenance' => ' Maintenance',
+    'Food Quality' => ' Food Quality',
+    'Cleanliness' => ' Cleanliness',
+    'Noise' => ' Noise/Disturbance',
+    'Behavioral' => ' Behavioral Issue',
+    'Security' => ' Security Concern',
+    'Water/Power' => ' Water/Power Issue',
+    'Other' => ' Other'
 );
 
 ?>
@@ -94,10 +95,24 @@ $categories = array(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Complaint - Hostel Management</title>
+    <!-- Early theme resolution: runs before first paint to prevent FOUC -->
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('bhm-theme');
+            if (!t) t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/theme.css">
+    <script src="../assets/app.js" defer></script>
+    
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -107,21 +122,21 @@ $categories = array(
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
         .input-field {
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            background: rgba(102, 126, 234, 0.05);
+            border: 1px solid rgba(201, 79, 27, 0.3);
+            background: rgba(201, 79, 27, 0.05);
             padding: 0.75rem 1rem;
             border-radius: 12px;
-            color: #1e293b;
+            color: var(--text);
             font-size: 0.95rem;
         }
         .input-field:focus {
             outline: none;
-            background: rgba(102, 126, 234, 0.1);
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(201, 79, 27, 0.1);
+            border-color: var(--terracotta);
+            box-shadow: 0 0 0 3px rgba(201, 79, 27, 0.1);
         }
         .btn-submit {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%);
             color: white;
             padding: 0.75rem 2rem;
             border-radius: 12px;
@@ -131,7 +146,7 @@ $categories = array(
             transition: all 0.3s ease;
         }
         .btn-submit:hover {
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 30px rgba(201, 79, 27, 0.4);
             transform: translateY(-2px);
         }
         .alert {
@@ -141,14 +156,14 @@ $categories = array(
             font-weight: 500;
         }
         .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
+            background: var(--error-soft);
+            color: var(--error);
+            border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
         }
         .alert-success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #86efac;
+            background: var(--success-soft);
+            color: var(--success);
+            border: 1px solid color-mix(in srgb, var(--success) 40%, transparent);
         }
         .priority-selector {
             display: flex;
@@ -158,7 +173,7 @@ $categories = array(
         .priority-btn {
             flex: 1;
             padding: 0.75rem 1rem;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border);
             border-radius: 12px;
             cursor: pointer;
             background: white;
@@ -166,37 +181,41 @@ $categories = array(
             transition: all 0.3s ease;
         }
         .priority-btn.high {
-            border-color: #ef4444;
-            color: #ef4444;
+            border-color: var(--error);
+            color: var(--error);
         }
         .priority-btn.high.active {
-            background: #ef4444;
+            background: var(--error);
             color: white;
         }
         .priority-btn.medium {
-            border-color: #f59e0b;
-            color: #f59e0b;
+            border-color: var(--warning);
+            color: var(--warning);
         }
         .priority-btn.medium.active {
-            background: #f59e0b;
+            background: var(--warning);
             color: white;
         }
         .priority-btn.low {
-            border-color: #10b981;
-            color: #10b981;
+            border-color: var(--success);
+            color: var(--success);
         }
         .priority-btn.low.active {
-            background: #10b981;
+            background: var(--success);
             color: white;
         }
     </style>
 </head>
 <body>
+    <button type="button" class="theme-toggle theme-toggle--float" aria-label="Switch to dark theme" aria-pressed="false" title="Toggle theme">
+        <?php echo icon('sun', 'icon-sun w-[18px] h-[18px]'); ?>
+        <?php echo icon('moon', 'icon-moon w-[18px] h-[18px]'); ?>
+    </button>
 
 <div class="p-4 lg:p-8 max-w-4xl mx-auto">
 
     <div class="glass rounded-2xl p-6 mb-8">
-        <h1 class="text-3xl font-bold text-slate-800">📝 File a Complaint</h1>
+        <h1 class="text-3xl font-bold text-slate-800"><?php echo icon('attendance', 'w-4 h-4'); ?> File a Complaint</h1>
         <p class="text-slate-600 mt-2">Report any issues or concerns to the management</p>
     </div>
 
@@ -211,7 +230,7 @@ $categories = array(
     <form method="POST" class="glass rounded-2xl p-8">
         <?= csrf_field() ?>
 
-        <h2 class="text-2xl font-bold text-slate-800 mb-6">🎓 Your Information</h2>
+        <h2 class="text-2xl font-bold text-slate-800 mb-6"><?php echo icon('students', 'w-4 h-4'); ?> Your Information</h2>
         
         <div class="mb-6">
             <label class="block text-sm font-600 text-slate-700 mb-2">Your Name / Student ID *</label>
@@ -225,7 +244,7 @@ $categories = array(
             </select>
         </div>
 
-        <h2 class="text-2xl font-bold text-slate-800 mb-6">⚠️ Complaint Details</h2>
+        <h2 class="text-2xl font-bold text-slate-800 mb-6"><?php echo icon('complaints', 'w-4 h-4'); ?> Complaint Details</h2>
         
         <div class="mb-6">
             <label class="block text-sm font-600 text-slate-700 mb-2">Complaint Title *</label>
@@ -254,16 +273,16 @@ $categories = array(
                 <label class="block text-sm font-600 text-slate-700 mb-2">Priority Level</label>
                 <input type="hidden" name="priority" id="priority_input" value="Medium">
                 <div class="priority-selector">
-                    <button type="button" class="priority-btn low" onclick="setPriority('Low')">🟢 Low</button>
-                    <button type="button" class="priority-btn medium active" onclick="setPriority('Medium')">🟡 Medium</button>
-                    <button type="button" class="priority-btn high" onclick="setPriority('High')">🔴 High</button>
+                    <button type="button" class="priority-btn low" onclick="setPriority('Low')"><span class="dot dot-green"></span> Low</button>
+                    <button type="button" class="priority-btn medium active" onclick="setPriority('Medium')"><span class="dot dot-amber"></span> Medium</button>
+                    <button type="button" class="priority-btn high" onclick="setPriority('High')"><span class="dot dot-red"></span> High</button>
                 </div>
             </div>
         </div>
 
         <div class="flex gap-4 pt-6 mt-8 border-t border-slate-200">
-            <button type="submit" class="btn-submit">✅ Submit Complaint</button>
-            <a href="list.php" class="px-6 py-3 bg-slate-400 text-white rounded-12px text-center font-600 hover:bg-slate-500 transition">← Back to List</a>
+            <button type="submit" class="btn-submit"><?php echo icon('check-circle', 'w-4 h-4'); ?> Submit Complaint</button>
+            <a href="list.php" class="px-6 py-3 bg-slate-400 text-white rounded-12px text-center font-600 hover:bg-slate-500 transition"><?php echo icon('arrow-left', 'w-4 h-4'); ?> Back to List</a>
         </div>
 
     </form>

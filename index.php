@@ -70,33 +70,39 @@ if ($r = $conn->query("SELECT COALESCE(SUM(due_amount),0) s FROM payments")) {
 }
 
 /* ============================
-   Revenue by month — last 6 months (real payment data)
+   Revenue by month — most recent 6 months with recorded payments
+   (falls back to the last 6 calendar months when no payments exist)
 ============================ */
 $revenueSeries = [];
-for ($i = 5; $i >= 0; $i--) {
-    $m = $thisMonth - $i;
-    $y = $thisYear;
-    while ($m <= 0) { $m += 12; $y--; }
-    $revenueSeries[] = ['month' => $m, 'year' => $y, 'label' => date('M', mktime(0, 0, 0, $m, 1)), 'total' => 0.0];
+$revRows = [];
+if ($r = $conn->query("SELECT month, year, COALESCE(SUM(paid_amount),0) s
+                       FROM payments
+                       GROUP BY year, month
+                       ORDER BY year DESC, month DESC
+                       LIMIT 6")) {
+    while ($row = $r->fetch_assoc()) { $revRows[] = $row; }
 }
-if (!empty($revenueSeries)) {
-    $from = reset($revenueSeries);
-    $to = end($revenueSeries);
-    $revRes = $conn->query("SELECT month, year, COALESCE(SUM(paid_amount),0) s
-                            FROM payments
-                            WHERE (year > {$from['year']}) OR (year = {$from['year']} AND month >= {$from['month']})");
-    if ($revRes) {
-        while ($row = $revRes->fetch_assoc()) {
-            foreach ($revenueSeries as &$slot) {
-                if ((int)$slot['month'] === (int)$row['month'] && (int)$slot['year'] === (int)$row['year']) {
-                    $slot['total'] = (float)$row['s'];
-                }
-            }
-            unset($slot);
-        }
+if (!empty($revRows)) {
+    $revRows = array_reverse($revRows); /* chronological */
+    foreach ($revRows as $row) {
+        $revenueSeries[] = [
+            'month' => (int)$row['month'],
+            'year'  => (int)$row['year'],
+            'label' => date('M', mktime(0, 0, 0, (int)$row['month'], 1)) . ' ' . (int)$row['year'],
+            'total' => (float)$row['s'],
+        ];
     }
+    $revSubtitle = 'Collected payments per month of activity (room + meal + fines)';
+} else {
+    for ($i = 5; $i >= 0; $i--) {
+        $m = $thisMonth - $i;
+        $y = $thisYear;
+        while ($m <= 0) { $m += 12; $y--; }
+        $revenueSeries[] = ['month' => $m, 'year' => $y, 'label' => date('M', mktime(0, 0, 0, $m, 1)), 'total' => 0.0];
+    }
+    $revSubtitle = 'No payments recorded in this window yet';
 }
-$maxRevenue = max($revenueSeries);
+$maxTotal = max(array_column($revenueSeries, 'total'));
 
 /* ============================
    Occupancy by wing (from real room data)
@@ -331,10 +337,10 @@ function month_name(int $m): string { return date('M', mktime(0, 0, 0, $m, 1)); 
         <!-- Revenue by month -->
         <div class="glass p-6 xl:col-span-2">
             <div class="flex items-center justify-between mb-2">
-                <h2 class="section-title flex items-center gap-2"><?= icon('banknote', 'w-4.5 h-4.5') ?> Revenue — last 6 months</h2>
+                <h2 class="section-title flex items-center gap-2"><?= icon('banknote', 'w-5 h-5') ?> Revenue - Recent Activity</h2>
                 <span class="badge" style="background: var(--warning-soft); color: var(--warning);">Outstanding <?= money_bdt($outstandingDues) ?></span>
             </div>
-            <p class="text-xs font-semibold mb-4" style="color: var(--text-3);">Collected payments per month (room + meal + fines)</p>
+            <p class="text-xs font-semibold mb-4" style="color: var(--text-3);"><?= $revSubtitle ?></p>
             <svg viewBox="0 0 560 200" class="w-full" role="img" aria-label="Revenue by month bar chart" style="max-height: 210px;">
                 <defs>
                     <linearGradient id="revGradient" x1="0" y1="0" x2="0" y2="1">
@@ -351,7 +357,7 @@ function month_name(int $m): string { return date('M', mktime(0, 0, 0, $m, 1)); 
                 $chartW = 518; $baseY = 180; $maxBar = 140;
                 $slotW = $chartW / $n;
                 foreach ($revenueSeries as $i => $slot):
-                    $h = $maxRevenue['total'] > 0 ? round(($slot['total'] / $maxRevenue['total']) * $maxBar) : 0;
+                    $h = $maxTotal > 0 ? round(($slot['total'] / $maxTotal) * $maxBar) : 0;
                     $h = max($h, 2);
                     $x = 34 + $i * $slotW + $slotW * 0.22;
                     $w = $slotW * 0.56;
@@ -369,7 +375,7 @@ function month_name(int $m): string { return date('M', mktime(0, 0, 0, $m, 1)); 
 
         <!-- Occupancy overview -->
         <div class="glass p-6">
-            <h2 class="section-title flex items-center gap-2 mb-1"><?= icon('pie', 'w-4.5 h-4.5') ?> Occupancy overview</h2>
+            <h2 class="section-title flex items-center gap-2 mb-1"><?= icon('pie', 'w-5 h-5') ?> Occupancy overview</h2>
             <p class="text-xs font-semibold mb-4" style="color: var(--text-3);">Beds occupied across all wings</p>
 
             <div class="flex items-center justify-center my-2">
@@ -407,7 +413,7 @@ function month_name(int $m): string { return date('M', mktime(0, 0, 0, $m, 1)); 
 
     <!-- ================= ROOM GRID ================= -->
     <div class="flex items-center justify-between">
-        <h2 class="section-title flex items-center gap-2"><?= icon('building', 'w-4.5 h-4.5') ?> Room Registry</h2>
+        <h2 class="section-title flex items-center gap-2"><?= icon('building', 'w-5 h-5') ?> Room Registry</h2>
     </div>
 
     <!-- Toolbar Filters -->
@@ -448,7 +454,7 @@ function month_name(int $m): string { return date('M', mktime(0, 0, 0, $m, 1)); 
         <!-- Recent payments -->
         <div class="glass p-6">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="section-title flex items-center gap-2"><?= icon('wallet', 'w-4.5 h-4.5') ?> Recent Payments</h2>
+                <h2 class="section-title flex items-center gap-2"><?= icon('wallet', 'w-5 h-5') ?> Recent Payments</h2>
                 <?php if (in_array($user_role, ['Admin', 'Accountant'])): ?>
                     <a href="<?= BASE_URL ?>payments/list.php" class="btn-sm" style="text-decoration: none;">View all <?= icon('arrow-right', 'w-3.5 h-3.5') ?></a>
                 <?php endif; ?>
@@ -482,7 +488,7 @@ function month_name(int $m): string { return date('M', mktime(0, 0, 0, $m, 1)); 
         <!-- Recent activity -->
         <div class="glass p-6">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="section-title flex items-center gap-2"><?= icon('activity', 'w-4.5 h-4.5') ?> Recent Activity</h2>
+                <h2 class="section-title flex items-center gap-2"><?= icon('activity', 'w-5 h-5') ?> Recent Activity</h2>
                 <?php if ($user_role === 'Admin'): ?>
                     <a href="<?= BASE_URL ?>settings/logs.php" class="btn-sm" style="text-decoration: none;">Audit trail <?= icon('arrow-right', 'w-3.5 h-3.5') ?></a>
                 <?php endif; ?>

@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt) {
             $stmt->bind_param('ssss', $title, $description, $publish_date, $status);
             if ($stmt->execute()) {
-                $message = '✓ Institutional announcement successfully published to the live dashboard system feed!';
+                $message = ' Institutional announcement successfully published to the live dashboard system feed!';
             } else {
                 $error = 'Database Failure: ' . $stmt->error;
             }
@@ -48,10 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <div class="glass rounded-2xl p-6 mb-6 flex justify-between items-center">
         <div>
-            <h2 class="text-2xl font-black text-slate-800">➕ Broadcast New Circular</h2>
+            <h2 class="text-2xl font-black text-slate-800"><?php echo icon('plus', 'w-4 h-4'); ?> Broadcast New Circular</h2>
             <p class="text-sm text-slate-500">Dispatch live updates, academic memos, or emergency hostel schedules</p>
         </div>
-        <a href="list.php" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-xl font-semibold hover:bg-slate-300 transition text-sm">← Notice Board</a>
+        <a href="list.php" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-xl font-semibold hover:bg-slate-300 transition text-sm"><?php echo icon('arrow-left', 'w-4 h-4'); ?> Notice Board</a>
     </div>
 
     <?php if ($message): ?>
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:opacity-90 transition">
-            📢 Deploy Notice Circular
+            <?php echo icon('notices', 'w-4 h-4'); ?> Deploy Notice Circular
         </button>
     </form>
 </div>

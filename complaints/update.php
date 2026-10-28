@@ -7,6 +7,7 @@
 
 require '../db.php';
 require '../includes/auth_check.php';
+require_once __DIR__ . '/../components/icon.php';
 
 requireRoles(['Admin','Hostel Supervisor']);
 
@@ -44,9 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Validation
     if (empty($new_status)) {
-        $error = '❌ Please select a status';
+        $error = ' Please select a status';
     } else if (!in_array($new_status, ['Open', 'In Progress', 'Resolved', 'Rejected'], true)) {
-        $error = '❌ Invalid status selected';
+        $error = ' Invalid status selected';
     } else {
 
         /* Validate assigned_to against the actual staff list (prevents FK errors) */
@@ -56,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $validStaff->bind_param('i', $assigned_to_val);
             $validStaff->execute();
             if ($validStaff->get_result()->num_rows === 0) {
-                $error = '❌ Selected assignment staff member was not found or inactive.';
+                $error = ' Selected assignment staff member was not found or inactive.';
             }
             $validStaff->close();
         }
@@ -72,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->bind_param("ssssi", $new_status, $assigned_to_val, $resolution_notes, $resolved_at, $complaint_id);
 
             if ($stmt->execute()) {
-                $success = '✅ Complaint status updated successfully!';
+                $success = ' Complaint status updated successfully!';
 
                 $logStmt = $conn->prepare("INSERT INTO activity_logs (user_id, action, ip_address) VALUES ((?), CONCAT('Updated Complaint ID: ', (?), ' Status to ', (?)), (?))");
                 if ($logStmt) {
@@ -90,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt2->close();
             } else {
                 error_log('complaints/update.php failed: ' . $stmt->error);
-                $error = '❌ Error updating complaint. Please try again.';
+                $error = ' Error updating complaint. Please try again.';
             }
             $stmt->close();
         }
@@ -122,10 +123,24 @@ $status_colors = array(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Complaint - Hostel Management</title>
+    <!-- Early theme resolution: runs before first paint to prevent FOUC -->
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('bhm-theme');
+            if (!t) t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/theme.css">
+    <script src="../assets/app.js" defer></script>
+    
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -135,21 +150,21 @@ $status_colors = array(
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
         .input-field {
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            background: rgba(102, 126, 234, 0.05);
+            border: 1px solid rgba(201, 79, 27, 0.3);
+            background: rgba(201, 79, 27, 0.05);
             padding: 0.75rem 1rem;
             border-radius: 12px;
-            color: #1e293b;
+            color: var(--text);
             font-size: 0.95rem;
         }
         .input-field:focus {
             outline: none;
-            background: rgba(102, 126, 234, 0.1);
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(201, 79, 27, 0.1);
+            border-color: var(--terracotta);
+            box-shadow: 0 0 0 3px rgba(201, 79, 27, 0.1);
         }
         .btn-submit {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%);
             color: white;
             padding: 0.75rem 2rem;
             border-radius: 12px;
@@ -159,7 +174,7 @@ $status_colors = array(
             transition: all 0.3s ease;
         }
         .btn-submit:hover {
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 30px rgba(201, 79, 27, 0.4);
             transform: translateY(-2px);
         }
         .alert {
@@ -169,18 +184,18 @@ $status_colors = array(
             font-weight: 500;
         }
         .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
+            background: var(--error-soft);
+            color: var(--error);
+            border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
         }
         .alert-success {
-            background: #dcfce7;
-            color: #166534;
-            border: 1px solid #86efac;
+            background: var(--success-soft);
+            color: var(--success);
+            border: 1px solid color-mix(in srgb, var(--success) 40%, transparent);
         }
         .info-card {
-            background: #f8fafc;
-            border-left: 4px solid #667eea;
+            background: var(--surface-2);
+            border-left: 4px solid var(--terracotta);
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1.5rem;
@@ -195,11 +210,15 @@ $status_colors = array(
     </style>
 </head>
 <body>
+    <button type="button" class="theme-toggle theme-toggle--float" aria-label="Switch to dark theme" aria-pressed="false" title="Toggle theme">
+        <?php echo icon('sun', 'icon-sun w-[18px] h-[18px]'); ?>
+        <?php echo icon('moon', 'icon-moon w-[18px] h-[18px]'); ?>
+    </button>
 
 <div class="p-4 lg:p-8 max-w-4xl mx-auto">
 
     <div class="glass rounded-2xl p-6 mb-8">
-        <h1 class="text-3xl font-bold text-slate-800">🔧 Update Complaint</h1>
+        <h1 class="text-3xl font-bold text-slate-800"><?php echo icon('settings', 'w-4 h-4'); ?> Update Complaint</h1>
         <p class="text-slate-600 mt-2">Update complaint status and add resolution notes</p>
     </div>
 
@@ -213,7 +232,7 @@ $status_colors = array(
 
     <!-- Complaint Details Display -->
     <div class="glass rounded-2xl p-8 mb-8">
-        <h2 class="text-2xl font-bold text-slate-800 mb-6">📋 Complaint Information</h2>
+        <h2 class="text-2xl font-bold text-slate-800 mb-6"><?php echo icon('file', 'w-4 h-4'); ?> Complaint Information</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="info-card">
@@ -232,11 +251,11 @@ $status_colors = array(
         </div>
 
         <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-6">
-            <div class="font-bold text-blue-900 mb-2">📌 <?php echo htmlspecialchars($complaint['complaint_title']); ?></div>
+            <div class="font-bold text-blue-900 mb-2"><?php echo icon('map-pin', 'w-4 h-4'); ?> <?php echo htmlspecialchars($complaint['complaint_title']); ?></div>
             <div class="text-blue-800"><?php echo nl2br(htmlspecialchars($complaint['complaint_description'])); ?></div>
             <div class="mt-3 pt-3 border-t border-blue-200 text-sm text-blue-700">
-                <span class="mr-4">📂 Category: <strong><?php echo htmlspecialchars($complaint['category']); ?></strong></span>
-                <span>📅 Filed: <strong><?php echo date('d M Y, H:i', strtotime($complaint['created_at'])); ?></strong></span>
+                <span class="mr-4"><?php echo icon('file', 'w-4 h-4'); ?> Category: <strong><?php echo htmlspecialchars($complaint['category']); ?></strong></span>
+                <span><?php echo icon('calendar', 'w-4 h-4'); ?> Filed: <strong><?php echo date('d M Y, H:i', strtotime($complaint['created_at'])); ?></strong></span>
             </div>
         </div>
     </div>
@@ -245,16 +264,16 @@ $status_colors = array(
     <form method="POST" class="glass rounded-2xl p-8">
         <?= csrf_field() ?>
 
-        <h2 class="text-2xl font-bold text-slate-800 mb-6">⚙️ Update Status</h2>
+        <h2 class="text-2xl font-bold text-slate-800 mb-6"><?php echo icon('settings', 'w-4 h-4'); ?> Update Status</h2>
 
         <div class="mb-6">
             <label class="block text-sm font-600 text-slate-700 mb-2">New Status *</label>
             <select name="status" class="input-field w-full" required>
                 <option value="">-- Select new status --</option>
-                <option value="Open" <?php echo ($complaint['status'] == 'Open') ? 'selected' : ''; ?>>🔵 Open</option>
-                <option value="In Progress" <?php echo ($complaint['status'] == 'In Progress') ? 'selected' : ''; ?>>🟡 In Progress</option>
-                <option value="Resolved" <?php echo ($complaint['status'] == 'Resolved') ? 'selected' : ''; ?>>🟢 Resolved</option>
-                <option value="Rejected" <?php echo ($complaint['status'] == 'Rejected') ? 'selected' : ''; ?>>🔴 Rejected</option>
+                <option value="Open" <?php echo ($complaint['status'] == 'Open') ? 'selected' : ''; ?>><span class="dot dot-coral"></span> Open</option>
+                <option value="In Progress" <?php echo ($complaint['status'] == 'In Progress') ? 'selected' : ''; ?>><span class="dot dot-amber"></span> In Progress</option>
+                <option value="Resolved" <?php echo ($complaint['status'] == 'Resolved') ? 'selected' : ''; ?>><span class="dot dot-green"></span> Resolved</option>
+                <option value="Rejected" <?php echo ($complaint['status'] == 'Rejected') ? 'selected' : ''; ?>><span class="dot dot-red"></span> Rejected</option>
             </select>
         </div>
 
@@ -270,7 +289,7 @@ $status_colors = array(
             </select>
         </div>
 
-        <h2 class="text-2xl font-bold text-slate-800 mb-6">📝 Resolution Notes</h2>
+        <h2 class="text-2xl font-bold text-slate-800 mb-6"><?php echo icon('attendance', 'w-4 h-4'); ?> Resolution Notes</h2>
 
         <div class="mb-6">
             <label class="block text-sm font-600 text-slate-700 mb-2">Add Resolution or Action Taken</label>
@@ -278,8 +297,8 @@ $status_colors = array(
         </div>
 
         <div class="flex gap-4 pt-6 border-t border-slate-200">
-            <button type="submit" class="btn-submit">✅ Update Complaint</button>
-            <a href="list.php" class="px-6 py-3 bg-slate-400 text-white rounded-12px text-center font-600 hover:bg-slate-500 transition">← Back to List</a>
+            <button type="submit" class="btn-submit"><?php echo icon('check-circle', 'w-4 h-4'); ?> Update Complaint</button>
+            <a href="list.php" class="px-6 py-3 bg-slate-400 text-white rounded-12px text-center font-600 hover:bg-slate-500 transition"><?php echo icon('arrow-left', 'w-4 h-4'); ?> Back to List</a>
         </div>
 
     </form>

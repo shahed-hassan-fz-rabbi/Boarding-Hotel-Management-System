@@ -15,7 +15,7 @@ $error = '';
 
 if (isset($_GET['success'])) {
     if ($_GET['success'] === 'archived') {
-        $message = '✓ Notice successfully moved to archive.';
+        $message = ' Notice successfully moved to archive.';
     }
 }
 if (isset($_GET['error'])) {
@@ -42,13 +42,13 @@ require '../components/header.php';
     <!-- Header Action Banner -->
     <div class="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
         <div>
-            <h2 class="text-2xl font-bold text-slate-800">📢 Institutional Notice Board</h2>
+            <h2 class="text-2xl font-bold text-slate-800"><?php echo icon('notices', 'w-4 h-4'); ?> Institutional Notice Board</h2>
             <p class="text-sm text-slate-500 mt-0.5">View active announcements, academic memos, and emergency guidelines</p>
         </div>
         <!-- Only Authorized management can post notices -->
         <?php if (in_array($user_role, ['Admin', 'Hostel Supervisor'])): ?>
             <a href="add.php" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md hover:opacity-90 transition text-xs no-print flex items-center gap-1.5">
-                ➕ Publish Notice
+                <?php echo icon('plus', 'w-4 h-4'); ?> Publish Notice
             </a>
         <?php endif; ?>
     </div>
@@ -83,7 +83,7 @@ require '../components/header.php';
                                 <span class="text-[10px] font-bold px-2 py-0.5 rounded border <?= $pBadge ?>"><?= $row['priority'] ?> Priority</span>
                                 <span class="text-[10px] font-bold px-2 py-0.5 rounded border <?= $statusBadge ?>"><?= $row['status'] ?></span>
                             </div>
-                            <span class="text-xs text-slate-400 font-mono font-bold">🗓️ <?= date('d M, Y', strtotime($row['publish_date'])) ?></span>
+                            <span class="text-xs text-slate-400 font-mono font-bold"><?php echo icon('calendar', 'w-4 h-4'); ?> <?= date('d M, Y', strtotime($row['publish_date'])) ?></span>
                         </div>
 
                         <!-- Title and Description Content Box -->
@@ -95,7 +95,7 @@ require '../components/header.php';
                     <?php if (in_array($user_role, ['Admin', 'Hostel Supervisor'])): ?>
                         <div class="mt-5 pt-3 border-t border-slate-100 flex justify-end gap-2 no-print">
                             <a href="edit.php?id=<?= $row['id'] ?>" class="px-3 py-1.5 border border-slate-200 hover:border-indigo-600 text-slate-600 hover:text-indigo-600 rounded-lg text-xs font-bold transition">
-                                ⚙️ Edit Notice
+                                <?php echo icon('settings', 'w-4 h-4'); ?> Edit Notice
                             </a>
                         </div>
                     <?php endif; ?>
@@ -103,7 +103,7 @@ require '../components/header.php';
             <?php endwhile; ?>
         <?php else: ?>
             <div class="col-span-1 md:col-span-2 bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 font-medium italic">
-                📭 No operational notice circulars published on board yet.
+                 No operational notice circulars published on board yet.
             </div>
         <?php endif; ?>
     </div>

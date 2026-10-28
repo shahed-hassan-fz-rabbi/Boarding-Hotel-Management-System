@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // PRG Alert Capturing from URL
 if (isset($_GET['success']) && $_GET['success'] === 'synchronized') {
-    $message = '✓ User profile records successfully synchronized and activated!';
+    $message = ' User profile records successfully synchronized and activated!';
 }
 
 /* Fetch Target User Data safely by ID */
@@ -95,10 +95,10 @@ require '../components/header.php';
     <!-- Title Header Dashboard Section -->
     <div class="bg-white border border-slate-200 rounded-2xl p-6 flex justify-between items-center shadow-sm">
         <div>
-            <h2 class="text-2xl font-bold text-slate-800">⚙️ Configure Profile Node</h2>
+            <h2 class="text-2xl font-bold text-slate-800"><?php echo icon('settings', 'w-4 h-4'); ?> Configure Profile Node</h2>
             <p class="text-sm text-slate-500 mt-0.5">Manage credentials, elevate security roles, or alter operational states for <span class="font-bold text-indigo-600"><?= htmlspecialchars($user_data['full_name']) ?></span></p>
         </div>
-        <a href="list.php" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition text-xs">← Back to List</a>
+        <a href="list.php" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition text-xs"><?php echo icon('arrow-left', 'w-4 h-4'); ?> Back to List</a>
     </div>
 
     <!-- Real-time Notification Banners -->
@@ -140,14 +140,14 @@ require '../components/header.php';
 
         <!-- Password Reset Tunnel Container -->
         <div class="bg-indigo-50/40 border border-indigo-100 rounded-xl p-5 space-y-3">
-            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">🔑 Cryptographic Password Reset Tunnel</h4>
+            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5"><?php echo icon('allocations', 'w-4 h-4'); ?> Cryptographic Password Reset Tunnel</h4>
             <p class="text-xs text-slate-500">Leave this field completely blank if you do not wish to modify the user's current password configuration.</p>
             <input type="password" name="password" class="w-full border border-slate-200 bg-white p-3 rounded-xl outline-none focus:border-indigo-500 transition text-sm font-medium" placeholder="Enter new password node to override...">
         </div>
 
         <div class="pt-4 border-t border-slate-100">
             <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-md hover:opacity-95 transition text-xs">
-                💾 Synchronize User Profile Records
+                <?php echo icon('save', 'w-4 h-4'); ?> Synchronize User Profile Records
             </button>
         </div>
     </form>

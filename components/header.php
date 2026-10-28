@@ -2,15 +2,16 @@
 /**
  * ==========================================
  * MASTER LAYOUT ENGINE (HEADER + SIDEBAR + NAVBAR)
- * Refactored Enterprise Edition for Final Year Submission
+ * Warm boutique-hotel design system — light & dark
  * ==========================================
  */
+
+require_once __DIR__ . '/icon.php';
 
 // Dynamically determine the active page and folder for mapping
 $current_page = basename($_SERVER['PHP_SELF']);
 $current_dir = basename(dirname($_SERVER['PHP_SELF']));
 
-// FIXED: Replaced ugly if-elseif block with a clean, maintainable Array Mapping
 $pageTitles = [
     'students'    => 'Student Management',
     'attendance'  => 'Attendance Management',
@@ -34,11 +35,11 @@ $tickerResult = $conn->query($tickerSql);
 if ($tickerResult && $tickerResult->num_rows > 0) {
     $notices_array = [];
     while ($t_row = $tickerResult->fetch_assoc()) {
-        $notices_array[] = "• " . htmlspecialchars($t_row['title']);
+        $notices_array[] = "&bull; " . htmlspecialchars($t_row['title']);
     }
     $ticker_text = implode(" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ", $notices_array);
 } else {
-    $ticker_text = "• Welcome to Boarding School Management System Panel.";
+    $ticker_text = "&bull; Welcome to the Boarding Hotel Management panel.";
 }
 ?>
 <!DOCTYPE html>
@@ -46,149 +47,47 @@ if ($tickerResult && $tickerResult->num_rows > 0) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $page_title_display ?> - Boarding School</title>
+    <title><?= $page_title_display ?> - Boarding Hotel</title>
+
+    <!-- Early theme resolution: runs before first paint to prevent FOUC -->
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('bhm-theme');
+            if (!t) t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+    })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        terracotta: { DEFAULT: '#C94F1B', dark: '#A93C16', soft: '#FF875F' },
+                        peach: { DEFAULT: '#FFB18A', soft: '#FFD0B8' },
+                        ivory: '#FFF8F3',
+                        cream: '#F7EDE5',
+                        warmgray: '#E7DDD5',
+                        charcoal: '#292521',
+                        cocoabrown: '#786B63'
+                    },
+                    fontFamily: {
+                        sans: ['Manrope', 'Inter', 'system-ui', 'Segoe UI', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
 
-        /* FIXED: Changed main background from gradient to clean Enterprise light-gray */
-        body {
-            background-color: #f8fafc;
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #1e293b;
-        }
-
-        .glass {
-            background: rgba(255, 255, 255, 1);
-            border: 1px solid #e2e8f0;
-        }
-
-        .sidebar {
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 280px;
-            height: 100vh;
-            z-index: 50;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            color: #94a3b8;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            font-size: 0.9rem;
-        }
-
-        .sidebar-nav a:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: #f8fafc;
-        }
-
-        .sidebar-nav a.active {
-            background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
-        }
-
-        .main-container {
-            margin-left: 280px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* FIXED: Clean top navbar with clear border */
-        .top-navbar {
-            height: 65px;
-            background: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-            position: fixed;
-            top: 0;
-            right: 0;
-            left: 280px;
-            z-index: 40;
-        }
-
-        /* FIXED: Modern Scrolling Notice Ticker */
-        .ticker-wrap {
-            position: fixed;
-            top: 65px;
-            right: 0;
-            left: 280px;
-            height: 35px;
-            z-index: 35;
-            overflow: hidden;
-            background: #fffbeb;
-            border-bottom: 1px solid #fef3c7;
-            display: flex;
-            align-items: center;
-        }
-
-        .ticker-label {
-            position: absolute;
-            left: 0;
-            height: 100%;
-            background: #d97706;
-            color: white;
-            padding: 0 1.25rem;
-            font-weight: 700;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            z-index: 10;
-        }
-
-        .ticker-move {
-            display: inline-block;
-            white-space: nowrap;
-            padding-left: 100%;
-            animation: ticker-animation 30s linear infinite;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: #92400e;
-        }
-
-        .ticker-move:hover {
-            animation-play-state: paused;
-            cursor: pointer;
-        }
-
-        @keyframes ticker-animation {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-
-        .content-body {
-            margin-top: 100px; /* Navbar (65px) + Ticker (35px) */
-            padding: 2rem;
-            flex: 1;
-        }
-
-        @media (max-width: 1024px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.active { transform: translateX(0); }
-            .main-container { margin-left: 0; }
-            .top-navbar { left: 0; }
-            .ticker-wrap { left: 0; }
-        }
-    </style>
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/theme.css">
+    <script src="<?= BASE_URL ?>assets/app.js" defer></script>
 </head>
 <body>
 
@@ -197,132 +96,156 @@ if ($tickerResult && $tickerResult->num_rows > 0) {
 
     <!-- MASTER SIDEBAR -->
     <aside class="sidebar no-print" id="projectSidebar">
-        <!-- FIXED: Renamed to Proposal Title -->
-        <div class="p-6 border-b border-slate-800">
-            <h1 class="text-xl font-black text-white tracking-wide text-center">🏫 Boarding School</h1>
-            <p class="text-slate-500 text-[11px] text-center font-semibold mt-1">Management System</p>
+        <div class="p-6 sidebar-brand-border">
+            <div class="flex items-center justify-center gap-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg" style="background: var(--grad-primary);">
+                    <?= icon('building', 'w-5 h-5') ?>
+                </div>
+                <div>
+                    <h1 class="text-base font-extrabold tracking-wide leading-tight" style="color: var(--sidebar-text-strong);">Boarding Hotel</h1>
+                    <p class="text-[10px] font-semibold mt-0.5 tracking-[0.18em] uppercase" style="color: #8A786B;">Management System</p>
+                </div>
+            </div>
         </div>
 
         <nav class="sidebar-nav flex-1 p-4 overflow-y-auto">
             <a href="<?= BASE_URL ?>index.php" class="<?= ($current_page === 'index.php' && empty($current_dir)) ? 'active' : '' ?>">
-                <span>📊 Dashboard</span>
+                <?= icon('dashboard', 'w-[18px] h-[18px]') ?>
+                <span>Dashboard</span>
             </a>
 
             <?php if (in_array($user_role, ['Admin', 'Teacher', 'Hostel Supervisor'])): ?>
                 <a href="<?= BASE_URL ?>students/list.php" class="<?= $current_dir === 'students' ? 'active' : '' ?>">
-                    <span>👨‍🎓 Students</span>
+                    <?= icon('students', 'w-[18px] h-[18px]') ?>
+                    <span>Students</span>
                 </a>
             <?php endif; ?>
 
             <?php if (in_array($user_role, ['Admin', 'Teacher'])): ?>
-                <div class="text-[10px] font-bold text-slate-600 uppercase px-3 mt-4 mb-1 tracking-wider">Academic</div>
+                <div class="sidebar-section-label">Academic</div>
                 <a href="<?= BASE_URL ?>attendance/manage.php" class="<?= ($current_dir === 'attendance' && $current_page === 'manage.php') ? 'active' : '' ?>">
-                    <span>📝 Attendance Sheets</span>
+                    <?= icon('attendance', 'w-[18px] h-[18px]') ?>
+                    <span>Attendance Sheets</span>
                 </a>
                 <a href="<?= BASE_URL ?>attendance/report.php" class="<?= ($current_dir === 'attendance' && $current_page === 'report.php') ? 'active' : '' ?>">
-                    <span>📉 Attendance Report</span>
+                    <?= icon('report', 'w-[18px] h-[18px]') ?>
+                    <span>Attendance Report</span>
                 </a>
             <?php endif; ?>
 
             <?php if (in_array($user_role, ['Admin', 'Hostel Supervisor'])): ?>
-                <div class="text-[10px] font-bold text-slate-600 uppercase px-3 mt-4 mb-1 tracking-wider">Hostel</div>
+                <div class="sidebar-section-label">Hostel</div>
                 <a href="<?= BASE_URL ?>allocations/list.php" class="<?= $current_dir === 'allocations' ? 'active' : '' ?>">
-                    <span>🔑 Allocations</span>
+                    <?= icon('allocations', 'w-[18px] h-[18px]') ?>
+                    <span>Allocations</span>
                 </a>
                 <a href="<?= BASE_URL ?>meals/list.php" class="<?= $current_dir === 'meals' ? 'active' : '' ?>">
-                    <span>🍛 Meals</span>
+                    <?= icon('meals', 'w-[18px] h-[18px]') ?>
+                    <span>Meals</span>
                 </a>
                 <a href="<?= BASE_URL ?>complaints/list.php" class="<?= $current_dir === 'complaints' ? 'active' : '' ?>">
-                    <span>⚠️ Complaints</span>
+                    <?= icon('complaints', 'w-[18px] h-[18px]') ?>
+                    <span>Complaints</span>
                 </a>
                 <a href="<?= BASE_URL ?>leaves/list.php" class="<?= $current_dir === 'leaves' ? 'active' : '' ?>">
-                    <span>🏖️ Leaves</span>
+                    <?= icon('leaves', 'w-[18px] h-[18px]') ?>
+                    <span>Leaves</span>
                 </a>
             <?php endif; ?>
 
             <?php if (in_array($user_role, ['Admin', 'Accountant'])): ?>
-                <div class="text-[10px] font-bold text-slate-600 uppercase px-3 mt-4 mb-1 tracking-wider">Financial</div>
+                <div class="sidebar-section-label">Financial</div>
                 <a href="<?= BASE_URL ?>payments/list.php" class="<?= $current_dir === 'payments' ? 'active' : '' ?>">
-                    <span>💰 Payments</span>
+                    <?= icon('payments', 'w-[18px] h-[18px]') ?>
+                    <span>Payments</span>
                 </a>
             <?php endif; ?>
 
             <?php if (in_array($user_role, ['Admin', 'Hostel Supervisor'])): ?>
-                <div class="text-[10px] font-bold text-slate-600 uppercase px-3 mt-4 mb-1 tracking-wider">Analytics</div>
+                <div class="sidebar-section-label">Analytics</div>
                 <a href="<?= BASE_URL ?>reports/analytics.php" class="<?= $current_dir === 'reports' ? 'active' : '' ?>">
-                    <span>📈 Reports & Analytics</span>
+                    <?= icon('analytics', 'w-[18px] h-[18px]') ?>
+                    <span>Reports &amp; Analytics</span>
                 </a>
             <?php endif; ?>
 
-            <div class="text-[10px] font-bold text-slate-600 uppercase px-3 mt-4 mb-1 tracking-wider">Communication</div>
+            <div class="sidebar-section-label">Communication</div>
             <a href="<?= BASE_URL ?>notices/list.php" class="<?= $current_dir === 'notices' ? 'active' : '' ?>">
-                <span>📢 Notice Board</span>
+                <?= icon('notices', 'w-[18px] h-[18px]') ?>
+                <span>Notice Board</span>
             </a>
 
             <?php if ($user_role === 'Admin'): ?>
-                <div class="text-[10px] font-bold text-slate-600 uppercase px-3 mt-4 mb-1 tracking-wider">Administration</div>
+                <div class="sidebar-section-label">Administration</div>
                 <a href="<?= BASE_URL ?>staff/list.php" class="<?= $current_dir === 'staff' ? 'active' : '' ?>">
-                    <span>👥 Staff Management</span>
+                    <?= icon('staff', 'w-[18px] h-[18px]') ?>
+                    <span>Staff Management</span>
                 </a>
                 <a href="<?= BASE_URL ?>users/list.php" class="<?= $current_dir === 'users' ? 'active' : '' ?>">
-                    <span>🔐 User Management</span>
+                    <?= icon('usermgmt', 'w-[18px] h-[18px]') ?>
+                    <span>User Management</span>
                 </a>
                 <a href="<?= BASE_URL ?>settings/index.php" class="<?= $current_dir === 'settings' ? 'active' : '' ?>">
-                    <span>⚙️ Settings</span>
+                    <?= icon('settings', 'w-[18px] h-[18px]') ?>
+                    <span>Settings</span>
                 </a>
             <?php endif; ?>
         </nav>
 
-        <div class="p-4 border-t border-slate-800 bg-slate-950/40">
+        <div class="p-4 sidebar-footer">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs">
-                    <?= strtoupper(substr($user_name, 0, 2)) ?>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-extrabold text-xs shadow-md" style="background: var(--grad-primary);">
+                    <?= strtoupper(substr(htmlspecialchars($user_name), 0, 2)) ?>
                 </div>
                 <div class="overflow-hidden flex-1">
-                    <h4 class="text-white text-xs font-bold truncate"><?= htmlspecialchars($user_name) ?></h4>
-                    <p class="text-slate-400 text-[10px] truncate"><?= htmlspecialchars($user_role) ?></p>
+                    <h4 class="text-xs font-bold truncate" style="color: var(--sidebar-text-strong);"><?= htmlspecialchars($user_name) ?></h4>
+                    <p class="text-[10px] truncate" style="color: var(--sidebar-text);"><?= htmlspecialchars($user_role) ?></p>
                 </div>
+                <a href="<?= BASE_URL ?>auth/logout.php" title="Log out" class="p-2 rounded-lg transition hover:bg-white/10" style="color: var(--sidebar-text);">
+                    <?= icon('logout', 'w-4 h-4') ?>
+                </a>
             </div>
-            <!-- FIXED: Changed to simple "Logout" -->
-            <a href="<?= BASE_URL ?>auth/logout.php" class="w-full mt-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-xs font-bold text-center block transition">Logout</a>
         </div>
     </aside>
 
     <!-- MAIN WRAPPER CONTAINER -->
     <div class="main-container">
-        
+
         <!-- TOP NAVBAR -->
         <header class="top-navbar px-6 flex justify-between items-center no-print">
             <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg text-lg">☰</button>
-                <!-- FIXED: Implemented Proper Breadcrumb System -->
-                <div class="flex items-center gap-2 text-xs font-semibold text-slate-400">
-                    <span class="hover:text-slate-600 cursor-pointer">Dashboard</span> 
-                    <span>&gt;</span> 
+                <button onclick="toggleSidebar()" aria-label="Toggle navigation" class="lg:hidden p-2 rounded-lg transition hover:bg-black/5" style="color: var(--text-2);"><?= icon('menu', 'w-5 h-5') ?></button>
+                <div class="flex items-center gap-2 text-xs font-semibold" style="color: var(--text-3);">
+                    <a href="<?= BASE_URL ?>index.php" class="transition hover:opacity-70">Dashboard</a>
                     <?php if(!empty($current_dir)): ?>
-                        <span class="hover:text-slate-600 cursor-pointer uppercase"><?= $current_dir ?></span> 
-                        <span>&gt;</span> 
+                        <span><?= icon('chevron-right', 'w-3 h-3') ?></span>
+                        <span class="uppercase tracking-wider"><?= $current_dir ?></span>
+                        <span><?= icon('chevron-right', 'w-3 h-3') ?></span>
                     <?php endif; ?>
-                    <span class="text-slate-800 font-bold"><?= $page_title_display ?></span>
+                    <span class="font-bold" style="color: var(--text);"><?= $page_title_display ?></span>
                 </div>
             </div>
 
-            <!-- FIXED: Changed Security Shield to "Logged in as" -->
             <div class="flex items-center gap-4">
                 <div class="text-right hidden sm:block">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase block tracking-wider">Logged in as</span>
-                    <span class="text-xs text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100"><?= htmlspecialchars($user_role) ?></span>
+                    <span class="text-[10px] font-bold uppercase block tracking-wider" style="color: var(--text-3);">Logged in as</span>
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-lg border" style="color: var(--terracotta); background: rgba(201,79,27,0.08); border-color: var(--peach-soft);"><?= htmlspecialchars($user_role) ?></span>
                 </div>
-                <div class="w-px h-6 bg-slate-200"></div>
-                <div class="text-xs text-slate-500 font-medium">
-                    🗓️ <?= date('d M, Y') ?>
+                <div class="w-px h-6" style="background: var(--border);"></div>
+                <div class="flex items-center gap-2 text-xs font-semibold" style="color: var(--text-2);">
+                    <?= icon('calendar', 'w-3.5 h-3.5') ?>
+                    <?= date('d M, Y') ?>
                 </div>
+                <button type="button" class="theme-toggle" aria-label="Switch to dark theme" aria-pressed="false" title="Toggle theme">
+                    <?= icon('sun', 'icon-sun w-[18px] h-[18px]') ?>
+                    <?= icon('moon', 'icon-moon w-[18px] h-[18px]') ?>
+                </button>
             </div>
         </header>
 
-        <!-- FIXED: Notice Label to "Latest Notice" -->
+        <!-- Notice ticker -->
         <div class="ticker-wrap no-print">
-            <div class="ticker-label">📢 Latest Notice</div>
+            <div class="ticker-label"><?= icon('notices', 'w-3.5 h-3.5') ?> Latest Notice</div>
             <div class="ticker-move">
                 <?= $ticker_text ?>
             </div>

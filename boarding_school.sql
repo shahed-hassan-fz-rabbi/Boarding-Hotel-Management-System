@@ -2,10 +2,11 @@
 -- BOARDING SCHOOL MANAGEMENT SYSTEM
 -- Complete Database Schema with Sample Data
 -- ===========================================
-
-DROP DATABASE IF EXISTS boarding_school;
-CREATE DATABASE boarding_school CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE boarding_school;
+-- Import into an existing database:
+--   Local:   CREATE DATABASE boarding_school CHARACTER SET utf8mb4;
+--            then: mysql -u root -p boarding_school < boarding_school.sql
+--   Hosting: select your assigned database in phpMyAdmin and import this file.
+-- (No CREATE DATABASE / USE statements: shared hosts assign the db name.)
 
 -- ===========================================
 -- Users Table (Admin, Warden, Staff)

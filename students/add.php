@@ -45,6 +45,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Generate student code
             $student_code = 'STU' . date('Ymd') . mt_rand(1000, 9999);
 
+            // Photo validation & storage — runs BEFORE any DB write, so a rejected
+            // upload leaves no partial guardian/student rows behind.
+            // Only real images of whitelisted types ≤ 2 MB are accepted; filenames are
+            // randomised (original name is never used) to prevent traversal/abuse.
+            $photo = NULL;
+            $photoError = NULL;
+            if (!empty($_FILES['photo']['name'])) {
+                $ext = strtolower(pathinfo((string)$_FILES['photo']['name'], PATHINFO_EXTENSION));
+                $tmpFile = (string)($_FILES['photo']['tmp_name'] ?? '');
+                $errCode = (int)($_FILES['photo']['error'] ?? UPLOAD_ERR_NO_FILE);
+
+                if ($errCode !== UPLOAD_ERR_OK || !is_uploaded_file($tmpFile)) {
+                    $photoError = '❌ Photo upload failed. Please try again.';
+                } else if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
+                    $photoError = '❌ Photo must be a JPG, PNG, WEBP or GIF image.';
+                } else if ((int)@filesize($tmpFile) > 2 * 1024 * 1024) {
+                    $photoError = '❌ Photo must be 2 MB or smaller.';
+                } else if (@getimagesize($tmpFile) === false) {
+                    $photoError = '❌ The uploaded file is not a valid image.';
+                } else {
+                    $photoDir = __DIR__ . '/../uploads/students';
+                    if (!is_dir($photoDir)) {
+                        @mkdir($photoDir, 0775, true);
+                    }
+                    $photoName = uniqid('student_', true) . '.' . $ext;
+                    if (move_uploaded_file($tmpFile, $photoDir . '/' . $photoName)) {
+                        $photo = 'uploads/students/' . $photoName;
+                    } else {
+                        $photoError = '❌ Could not save the uploaded photo. Please try again.';
+                    }
+                }
+            }
+
+            if ($photoError !== NULL) {
+                $error = $photoError;
+            } else {
+
             // Insert guardian first (if provided)
             $guardian_id = NULL;
             if (!empty($father_name) || !empty($mother_name)) {
@@ -57,20 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt_guardian->close();
             }
 
-            // Handle photo upload
-            $photo = NULL;
-            if (!empty($_FILES['photo']['name'])) {
-                $photo_name = uniqid('student_') . '_' . $_FILES['photo']['name'];
-                $photo_path = '../uploads/students/' . $photo_name;
-                
-                if (move_uploaded_file($_FILES['photo']['tmp_name'], $photo_path)) {
-                    $photo = 'uploads/students/' . $photo_name;
-                }
-            }
-
             // Insert student
             $stmt = $conn->prepare("INSERT INTO students (student_code, guardian_id, first_name, last_name, email, phone, gender, dob, blood_group, address, admission_date, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sisssssssss", $student_code, $guardian_id, $first_name, $last_name, $email, $phone, $gender, $dob, $blood_group, $address, $admission_date, $photo);
+            $stmt->bind_param("sissssssssss", $student_code, $guardian_id, $first_name, $last_name, $email, $phone, $gender, $dob, $blood_group, $address, $admission_date, $photo);
 
             if ($stmt->execute()) {
                 $student_id = $conn->insert_id;
@@ -88,9 +114,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $success = '✅ Student added successfully!';
                 header('refresh:2;url=list.php');
             } else {
-                $error = '❌ Error adding student: ' . $conn->error;
+                error_log('students/add.php insert failed: ' . $stmt->error);
+                $error = '❌ Error adding student. Please try again.';
             }
             $stmt->close();
+            }
         }
     }
 }

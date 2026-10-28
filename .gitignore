@@ -9,6 +9,9 @@ config.local.php
 *backup*.sql
 docs/private/
 
+# User-uploaded files (private data, never commit)
+uploads/
+
 # OS junk
 Thumbs.db
 .DS_Store

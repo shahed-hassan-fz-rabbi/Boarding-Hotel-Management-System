@@ -7,6 +7,16 @@ payments, complaints, leave management, attendance, notices and staff administra
 No framework is used — plain PHP templates with Tailwind (CDN), so the codebase is
 easy to host on any shared server, XAMPP, or the PHP built-in server.
 
+**Stack honesty note:** the application code is **procedural Core PHP** using
+mysqli's *object-style API* (`$conn->prepare(...)`). There is no custom OOP layer,
+no framework, and no Composer dependency — what you see is plain, readable PHP.
+
+## Screenshots
+
+| Login | Dashboard |
+|-------|-----------|
+| ![Login page](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+
 ## Features
 
 | Module | What it does |
@@ -123,15 +133,27 @@ immediately after import. Resetting to a clean slate = re-importing
 - **Allocation integrity:** room allocate/deallocate run inside
   `START TRANSACTION` + `SELECT ... FOR UPDATE` locks; `room_beds.status` and
   `hostel_rooms.allocated_beds`/`status` are re-synced automatically.
+- **Upload hardening:** student photos are validated before anything touches the
+  database — extension whitelist (jpg/jpeg/png/webp/gif), 2 MB cap, a real-image
+  check (`getimagesize`), and randomised filenames (the original client filename
+  is never used). Files land in `uploads/`, which is git-ignored.
 
 ## Testing
 
-`test_e2e.php` and `test_crud.php` (kept outside the webroot, in a sibling temp dir)
-drive the app over HTTP against a live MySQL instance: login, CSRF rejection,
-RBAC allow/deny per role, full room allocation lifecycle, payment math
-(forged status ignored, Partial/Due computation, duplicate prevention), CRUD sweeps
-of meals/complaints/leaves/notices/settings/users, and logout. Current status:
-**45/45 checks PASS (31 E2E + 14 CRUD)**.
+The repo ships with a runnable, self-cleaning test suite in [`tests/`](tests/README.md)
+— **52 checks total**, written in the same plain-PHP style as the app:
+
+```bash
+php tests/e2e_test.php          # 31 checks: auth, CSRF 403s, RBAC, allocation lifecycle, payment math
+php tests/crud_test.php         # 14 checks: meals, complaints, leaves, notices, settings, users
+php tests/upload_test.php       #  7 checks: photo upload security (valid image, .php & oversize rejected)
+php tests/bind_params_check.php # static: bind_param type-string vs variable count across the codebase
+```
+
+Suites run against a live instance (XAMPP Apache or `php -S`) and exit `1` on any
+failure, so they are CI-friendly. They only mutate throwaway rows that they delete
+afterwards. Current status: **52/52 checks PASS** against XAMPP Apache + MySQL 8
+on the developer machine.
 
 ## Project structure
 
@@ -149,9 +171,11 @@ notices/         bulletin board
 attendance/     attendance module
 reports/         admin reports
 settings/ staff/ users/   admin-only configuration
+tests/           runnable regression suites (52 checks, CLI-only)
 db.php           DB connect + dynamic BASE_URL
 boarding_school.sql   full schema + seed data
-docs/            progress tracker, known issues
+docs/            progress tracker, known issues, screenshots
+uploads/         user-uploaded files (git-ignored, created at runtime)
 ```
 
 ## Known issues

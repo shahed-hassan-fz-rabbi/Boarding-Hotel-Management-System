@@ -23,6 +23,10 @@ This file tracks development progress in small, verified increments.
 | 15 | XSS/output-escape hardening pass | ✅ Done (8 pages, commit b060372) |
 | 16 | README, install/deploy docs, KNOWN_ISSUES | ✅ Done |
 | 17 | Final full `php -l` sweep + push verification | ✅ Done (45/45 clean) |
+| 18 | Photo upload validation (admissions) + admission bind_param 500 fix | ✅ Done (f02861c, upload tests 7/7) |
+| 19 | Recruiter-facing `tests/` suite in repo (52 checks) | ✅ Done (0379ffc) |
+| 20 | Portfolio README (screenshots, honest stack statement) & known-issues refresh | ✅ Done |
+| 21 | Hosting research + live deployment | ⬜ Next |
 
 ## Verified Bug List (fixed)
 
@@ -60,6 +64,9 @@ This file tracks development progress in small, verified increments.
 | `8dbb442` | fix: bind_param type strings (meals), complaint update validation (status whitelist + staff existence), prepared activity-log writes everywhere | **CRUD 14/14 + E2E 31/31 PASS**; bind_param checker consistent; php -l clean | ✅ origin/main |
 | `368f8d8` | docs: README.md (install/config/security), docs/KNOWN_ISSUES.md, progress update | php -l 45/45 clean | ✅ origin/main |
 | `b060372` | fix: XSS hardening — esc() on every DB value in JS innerHTML templates (8 pages), no more names inside onclick attributes, JSON_HEX_* embedding | E2E 31/31 + CRUD 14/14 PASS; node --check valid JS on all 8 pages | ✅ origin/main |
+| `7af9e74` | docs: XSS hardening + CRUD sweep results logged; roadmap complete | — | ✅ origin/main |
+| `f02861c` | fix: student admission 500 (bind_param 11/12 types/vars) + photo-upload validation (whitelist/size/getimagesize/random name, pre-DB-write); DB error no longer echoed; uploads/ git-ignored | upload suite 7/7 vs XAMPP Apache; improved bind_param checker proved it catches the bug class | ✅ origin/main |
+| `0379ffc` | test: repo `tests/` suite — e2e 31 + crud 14 + upload 7 + static bind_param check; CLI-only guard, env-configurable, self-cleaning | all suites green against XAMPP Apache (52/52) | local until push approval |
 
 ### CRUD sweep coverage (8dbb442, PHP built-in server + live MySQL)
 - Meals: create → edit (Dinner, qty 2) → delete, marker-verified in DB

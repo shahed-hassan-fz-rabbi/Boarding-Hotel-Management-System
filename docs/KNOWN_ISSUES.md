@@ -28,6 +28,12 @@ Fixed bugs are tracked in [`PROJECT_PROGRESS.md`](PROJECT_PROGRESS.md).
 - bind_param type-string crashes in meals (8dbb442)
 - Complaint-assign validation against real staff list (8dbb442)
 - Un-prepared activity-log writes (8dbb442)
+- JS template-literal XSS across list pages (b060372)
+- **Student admission form was a guaranteed HTTP 500** — `bind_param` had 11 type
+  chars for 12 variables; every form-submitted admission crashed. (f02861c)
+- **Student photo upload accepted any file** (incl. `.php` into the webroot, with
+  the original client filename). Now whitelisted image types only, 2 MB cap,
+  `getimagesize` check, randomised names, validated before any DB write. (f02861c)
 
 ## Refused / deliberate non-changes
 

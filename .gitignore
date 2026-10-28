@@ -1,0 +1,29 @@
+# Environment / secrets
+.env
+*.env
+config.local.php
+
+# Logs & dumps (keep schema SQL, ignore data dumps)
+*.log
+*dump*.sql
+*backup*.sql
+docs/private/
+
+# OS junk
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+nbproject/
+
+# Generated / temporary
+tmp/
+temp/
+node_modules/
+
+# Do NOT ignore the schema file used for setup:
+# boarding_school.sql is intentionally tracked.

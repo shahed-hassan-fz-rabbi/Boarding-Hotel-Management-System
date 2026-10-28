@@ -556,6 +556,7 @@ $leaveTypesJSON = json_encode($leaveTypes);
             </div>
 
             <form id="leaveForm" method="POST" action="apply.php">
+            <?= csrf_field() ?>
                 <div id="formError" class="hidden bg-red-100 text-red-700 p-3 rounded-lg mb-4"></div>
 
                 <!-- Leave Type -->

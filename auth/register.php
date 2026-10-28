@@ -7,11 +7,15 @@
  */
 
 require '../db.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!csrf_verify()) {
+        csrf_reject();
+    }
     $full_name = trim($_POST['full_name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
@@ -127,6 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php endif; ?>
 
     <form method="POST" action="" class="space-y-3.5">
+        <?= csrf_field() ?>
         <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">👤 Full Name</label>
             <input type="text" name="full_name" class="input-field" placeholder="e.g. Rahim Ali" value="<?= htmlspecialchars($_POST['full_name'] ?? ''); ?>" required minlength="3">

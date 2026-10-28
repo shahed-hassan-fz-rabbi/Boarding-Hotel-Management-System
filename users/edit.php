@@ -115,6 +115,7 @@ require '../components/header.php';
 
     <!-- Master Form Interface Grid -->
     <form method="POST" action="" class="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm space-y-6">
+        <?= csrf_field() ?>
         <input type="hidden" name="action" value="sync_user">
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">

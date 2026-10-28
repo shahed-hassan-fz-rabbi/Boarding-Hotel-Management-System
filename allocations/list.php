@@ -543,6 +543,7 @@ $studentsJSON = json_encode($students);
             </div>
 
             <form id="allocateForm" method="POST" action="allocate.php">
+            <?= csrf_field() ?>
                 <!-- Student Selection -->
                 <div class="form-group">
                     <label class="form-label">Select Student *</label>

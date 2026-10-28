@@ -569,6 +569,7 @@ $studentsJSON = json_encode($students);
             </div>
 
             <form id="complaintForm" method="POST" action="add.php">
+            <?= csrf_field() ?>
                 <div id="formError" class="hidden bg-red-100 text-red-700 p-3 rounded-lg mb-4"></div>
 
                 <!-- Student Selection -->
@@ -895,6 +896,7 @@ $studentsJSON = json_encode($students);
             if ('<?php echo $user_role; ?>' === 'Admin' || '<?php echo $user_role; ?>' === 'Warden') {
                 detailHTML += `
                     <form method="POST" action="update.php" class="border-t pt-6">
+                        <?= csrf_field() ?>
                         <h3 class="font-600 text-slate-800 mb-4">Update Status</h3>
                         
                         <div class="mb-4">

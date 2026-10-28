@@ -141,6 +141,7 @@ if ($students_result) {
     <?php endif; ?>
 
     <form method="POST" class="glass rounded-2xl p-8">
+        <?= csrf_field() ?>
 
         <h2 class="text-2xl font-bold text-slate-800 mb-6">🎓 Student Information</h2>
         

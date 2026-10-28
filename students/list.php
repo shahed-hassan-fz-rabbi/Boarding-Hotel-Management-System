@@ -507,6 +507,7 @@ $studentsJSON = json_encode($students);
             </div>
 
             <form id="studentForm" method="POST" action="add.php" enctype="multipart/form-data">
+            <?= csrf_field() ?>
                 <div id="formError" class="error-message hidden"></div>
 
                 <!-- First Name & Last Name -->

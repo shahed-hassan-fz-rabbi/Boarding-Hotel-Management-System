@@ -131,6 +131,7 @@ $studentsResult = $stmt->get_result();
 
     <!-- Master Data Submissions Sheet -->
     <form method="POST" class="glass rounded-2xl overflow-hidden p-6">
+        <?= csrf_field() ?>
         <div class="overflow-x-auto mb-6">
             <table class="data-table">
                 <thead>

@@ -132,6 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Master Form Infrastructure Layer -->
     <form method="POST" class="glass rounded-2xl p-8">
+        <?= csrf_field() ?>
         <input type="hidden" name="staff_code" value="<?= htmlspecialchars($staff['staff_code']) ?>">
         
         <div class="form-row">

@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <form method="POST" class="glass rounded-2xl p-8 bg-white shadow-xl">
+        <?= csrf_field() ?>
         <div class="mb-5">
             <label class="block text-sm font-bold text-slate-700 mb-2">Notice Title / Circular Topic *</label>
             <input type="text" name="title" class="w-full border border-slate-200 bg-slate-50/50 p-3 rounded-xl outline-none focus:bg-white focus:border-indigo-500 transition font-medium" placeholder="e.g., Extended Academic Summer Vacation Notice or Holy Ramadan Meal Schedules" required>

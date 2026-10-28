@@ -402,6 +402,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Settings Form -->
                 <form method="POST" class="glass rounded-2xl p-8">
+                <?= csrf_field() ?>
 
                     <!-- School Information -->
                     <div class="settings-section">

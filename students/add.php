@@ -179,6 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <!-- Form -->
     <form method="POST" enctype="multipart/form-data" class="glass rounded-2xl p-8">
+        <?= csrf_field() ?>
 
         <!-- Personal Information -->
         <h2 class="text-2xl font-bold text-slate-800 mb-6">📋 Personal Information</h2>

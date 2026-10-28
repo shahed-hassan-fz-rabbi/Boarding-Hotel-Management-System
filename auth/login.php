@@ -7,6 +7,7 @@
 
 session_start();
 require '../db.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 // Already Logged In
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
@@ -22,6 +23,9 @@ if (isset($_GET['registered'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (!csrf_verify()) {
+        csrf_reject();
+    }
     $email = trim($_POST["email"] ?? "");
     $password = trim($_POST["password"] ?? "");
 
@@ -141,6 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <?php endif; ?>
 
     <form method="POST" class="space-y-4">
+        <?= csrf_field() ?>
         <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address</label>
             <input type="email" name="email" class="input-field" placeholder="admin@boarding.com" required>

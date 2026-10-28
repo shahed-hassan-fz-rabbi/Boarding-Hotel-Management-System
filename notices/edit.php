@@ -120,6 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             
             <!-- FIXED: Secure POST Method Form for Deletion instead of GET injection -->
             <form method="POST" action="" onsubmit="return confirm('🚨 Archive this notice? It will be removed from the active ticker stream.')" class="inline">
+                <?= csrf_field() ?>
                 <input type="hidden" name="id" value="<?= $notice_id ?>">
                 <input type="hidden" name="action" value="secure_delete">
                 <button type="submit" class="px-4 py-2.5 bg-rose-50 text-rose-600 rounded-xl font-semibold hover:bg-rose-100 transition text-xs">
@@ -139,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     <!-- Master Editing Form Interface Layout -->
     <form method="POST" action="" class="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm space-y-5">
+        <?= csrf_field() ?>
         <input type="hidden" name="action" value="secure_update">
 
         <div>

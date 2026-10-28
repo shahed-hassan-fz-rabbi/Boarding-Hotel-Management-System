@@ -545,6 +545,7 @@ $studentsJSON = json_encode($students);
             </div>
 
             <form id="mealForm" method="POST" action="add.php">
+            <?= csrf_field() ?>
                 <div id="formError" class="hidden bg-red-100 text-red-700 p-3 rounded-lg mb-4"></div>
 
                 <!-- Student Selection -->

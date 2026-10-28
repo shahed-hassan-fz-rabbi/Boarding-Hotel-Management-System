@@ -10,6 +10,7 @@
 session_start();
 
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/csrf.php';
 
 /* ============================
    User Must Be Logged In
@@ -42,6 +43,15 @@ if (isset($_SESSION['LAST_ACTIVITY'])) {
 }
 
 $_SESSION['LAST_ACTIVITY'] = time();
+
+/* ============================
+   CSRF Protection: Verify Every
+   State-Changing POST Request
+============================ */
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !csrf_verify()) {
+    csrf_reject();
+}
 
 /* ============================
    Get User Information from Session

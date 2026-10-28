@@ -95,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     <!-- User Provisioning Form Core Layout -->
     <form method="POST" action="" class="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm space-y-5">
+        <?= csrf_field() ?>
         <input type="hidden" name="action" value="provision_user">
         
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">

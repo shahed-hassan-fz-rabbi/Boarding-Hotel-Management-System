@@ -7,13 +7,14 @@
  */
 
 require_once '../includes/auth_check.php';
-require '../components/header.php';
 
 // Only Admin/Hostel Supervisor can access
 if ($user_role !== 'Admin' && $user_role !== 'Hostel Supervisor') {
     header('Location: ../index.php?error=Access denied');
     exit();
 }
+
+require '../components/header.php';
 
 /* ============================
    1. General Statistics Cards

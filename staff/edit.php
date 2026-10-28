@@ -7,13 +7,14 @@
  */
 
 require_once '../includes/auth_check.php';
-require '../components/header.php';
 
 // Access Control: Only Admin can edit staff records
 if ($user_role !== 'Admin') {
     header('Location: ../index.php?error=Access denied');
     exit();
 }
+
+require '../components/header.php';
 
 $message = '';
 $error = '';

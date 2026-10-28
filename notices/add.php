@@ -7,13 +7,14 @@
  */
 
 require_once '../includes/auth_check.php';
-require '../components/header.php';
 
 // Role Guard: Only Admin and Hostel Supervisor can issue new notice logs
 if (!in_array($user_role, ['Admin', 'Hostel Supervisor'])) {
     header('Location: ../index.php?error=Access denied');
     exit();
 }
+
+require '../components/header.php';
 
 $message = '';
 $error = '';

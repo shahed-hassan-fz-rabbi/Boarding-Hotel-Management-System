@@ -7,13 +7,14 @@
  */
 
 require_once '../includes/auth_check.php';
-require '../components/header.php';
 
 // Access Control: Only Admin can manage system user accounts
 if ($user_role !== 'Admin') {
     header('Location: ../index.php?error=Access denied');
     exit();
 }
+
+require '../components/header.php';
 
 $search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
 

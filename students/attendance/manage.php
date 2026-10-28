@@ -7,13 +7,14 @@
  */
 
 require_once '../includes/auth_check.php';
-require '../components/header.php';
 
 // Only Admin and Teacher roles can manage attendance
 if (!in_array($user_role, ['Admin', 'Teacher'])) {
     header('Location: ../index.php?error=Access denied');
     exit();
 }
+
+require '../components/header.php';
 
 $message = '';
 $error = '';

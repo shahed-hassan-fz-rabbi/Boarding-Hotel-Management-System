@@ -7,13 +7,14 @@
  */
 
 require_once '../includes/auth_check.php';
-require '../components/header.php';
 
 // Role Guard
 if (!in_array($user_role, ['Admin', 'Teacher', 'Hostel Supervisor'])) {
     header('Location: ../index.php?error=Access denied');
     exit();
 }
+
+require '../components/header.php';
 
 // Filters Mapping
 $selected_month = isset($_GET['month']) ? intval($_GET['month']) : intval(date('m'));

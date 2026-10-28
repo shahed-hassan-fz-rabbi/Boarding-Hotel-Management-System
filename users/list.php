@@ -35,15 +35,8 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User Management - Boarding School</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); }
+<style>
+        .glass { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(8px); border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06); }
         .input-field { border: 1px solid #e2e8f0; background: #f8fafc; padding: 0.65rem 1rem; border-radius: 12px; outline: none; transition: all 0.3s; color: #1e293b; }
         .input-field:focus { background: white; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
         .data-table { width: 100%; border-collapse: collapse; }
@@ -55,9 +48,6 @@ $result = $stmt->get_result();
         .badge-supervisor { background: #fef3c7; color: #92400e; }
         .badge-accountant { background: #dcfce7; color: #166534; }
     </style>
-</head>
-<body>
-
 <div class="p-4 lg:p-8 max-w-[1600px] mx-auto">
     
     <!-- Top University Banner Header Component -->
@@ -153,5 +143,3 @@ $result = $stmt->get_result();
 $stmt->close();
 require '../components/footer.php'; 
 ?>
-</body>
-</html>

@@ -247,6 +247,13 @@ if ($tickerResult && $tickerResult->num_rows > 0) {
                 </a>
             <?php endif; ?>
 
+            <?php if (in_array($user_role, ['Admin', 'Hostel Supervisor'])): ?>
+                <div class="text-[10px] font-bold text-slate-600 uppercase px-3 mt-4 mb-1 tracking-wider">Analytics</div>
+                <a href="<?= BASE_URL ?>reports/analytics.php" class="<?= $current_dir === 'reports' ? 'active' : '' ?>">
+                    <span>📈 Reports & Analytics</span>
+                </a>
+            <?php endif; ?>
+
             <div class="text-[10px] font-bold text-slate-600 uppercase px-3 mt-4 mb-1 tracking-wider">Communication</div>
             <a href="<?= BASE_URL ?>notices/list.php" class="<?= $current_dir === 'notices' ? 'active' : '' ?>">
                 <span>📢 Notice Board</span>
